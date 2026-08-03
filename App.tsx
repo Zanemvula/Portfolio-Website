@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { 
   Mail, 
   Linkedin, 
@@ -128,7 +128,7 @@ const BuildRequest: React.FC = () => {
   // GOOGLE WEB APP URL HERE
   const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw844ICAPt4D-qUK37rxamhv4i4QArG83eAnjubIVfWD98676H5JbtL4kQ-0f9Dt8IZUw/exec"; 
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus('submitting');
 
@@ -160,11 +160,11 @@ const BuildRequest: React.FC = () => {
       console.error(error);
       setStatus('error');
     }
-  };
+  }, [formData]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
-  };
+  }, []);
 
   return (
     <section id="build-request" className="py-24 px-6 lg:px-24 border-t border-[var(--border-color)] bg-[var(--accent-color)]/20">
@@ -289,15 +289,13 @@ const BuildRequest: React.FC = () => {
 };
 
 const Roadmap: React.FC<{ events: TimelineEvent[] }> = ({ events }) => {
-  const [activeId, setActiveId] = useState<string>("");
+  const [activeId, setActiveId] = useState<string>(events.length > 0 ? events[0].id : "");
   
-  useEffect(() => {
-    if (events.length > 0 && !activeId) {
-      setActiveId(events[0].id);
-    }
-  }, [events, activeId]);
+  const activeEvent = useMemo(() => events.find(e => e.id === activeId), [events, activeId]);
 
-  const activeEvent = events.find(e => e.id === activeId);
+  const handleEventSelect = useCallback((eventId: string) => {
+    setActiveId(eventId);
+  }, []);
 
   return (
     <section id="roadmap" className="py-24 px-6 lg:px-24 border-b border-[var(--border-color)]">
@@ -314,7 +312,7 @@ const Roadmap: React.FC<{ events: TimelineEvent[] }> = ({ events }) => {
               {events.map((event) => (
                 <button
                   key={event.id}
-                  onClick={() => setActiveId(event.id)}
+                  onClick={() => handleEventSelect(event.id)}
                   className={`relative w-full text-left pl-10 py-3 transition-all group ${
                     activeId === event.id ? 'opacity-100' : 'opacity-30 hover:opacity-60'
                   }`}
@@ -423,7 +421,7 @@ const SystemsPreview: React.FC = () => {
   );
 }
 
-const ProjectCard: React.FC<{ study: CaseStudy }> = ({ study }) => (
+const ProjectCard = React.memo(({ study }: { study: CaseStudy }) => (
   <div className="group relative p-6 md:p-12 bg-[var(--bg-color)] border border-[var(--border-color)] transition-all duration-500 hover:scale-[1.01] hover:border-[var(--text-color)] hover:shadow-[0_0_30px_rgba(255,255,255,0.05)] light:hover:shadow-[0_0_30px_rgba(0,0,0,0.05)] overflow-hidden">
     <div className="absolute top-4 right-8 text-8xl font-mono font-bold opacity-[0.02] pointer-events-none select-none group-hover:opacity-[0.05] transition-opacity">
       {study.id}
@@ -554,16 +552,18 @@ const ProjectCard: React.FC<{ study: CaseStudy }> = ({ study }) => (
       </div>
     </div>
   </div>
-);
+));
 
 const ProjectsPage: React.FC = () => {
   const [filter, setFilter] = useState<ProjectCategory | 'All'>('All');
   
-  const filteredStudies = filter === 'All' 
-    ? CASE_STUDIES 
-    : CASE_STUDIES.filter(s => s.category === filter);
+  const categories: (ProjectCategory | 'All')[] = useMemo(() => 
+    ['All', 'Intelligence', 'Engineering', 'Analytics', 'Automation', 'Strategy'], 
+  []);
 
-  const categories: (ProjectCategory | 'All')[] = ['All', 'Intelligence', 'Engineering', 'Analytics', 'Automation', 'Strategy'];
+  const filteredStudies = useMemo(() => 
+    filter === 'All' ? CASE_STUDIES : CASE_STUDIES.filter(s => s.category === filter),
+  [filter]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
