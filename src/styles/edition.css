@@ -22,9 +22,9 @@
 
 .scene__layer {
   position: absolute;
-  inset: -5%;
-  width: 110%;
-  height: 110%;
+  inset: -3%;
+  width: 106%;
+  height: 106%;
   pointer-events: none;
   transform-origin: 50% 60%;
 }

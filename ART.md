@@ -24,7 +24,7 @@ To repaint a scene later, bump its `revision`, paint again and process again. Ne
 
 ## 1. Frontispiece (hero)
 
-Folder `art/hero/` · 1536×1024 (3:2 landscape) · revision 1 · ⬜ not painted yet
+Folder `art/hero/` · 1536×1024 (3:2 landscape) · revision 1 · ✅ published (r1: full, plate, figures, foreground)
 
 _A vaulted Renaissance gallery at golden hour with a draughtsman studying plans at a drafting table._
 
@@ -70,7 +70,7 @@ Save as `art/hero/foreground.png`.
 
 ## 2. Chatly
 
-Folder `art/chatly/` · 1536×1024 (3:2 landscape) · revision 1 · ⬜ not painted yet
+Folder `art/chatly/` · 1536×1024 (3:2 landscape) · revision 1 · ✅ published (r1: full, plate, figures)
 
 _Renaissance messengers carrying sealed letters across a sunlit piazza between merchants' houses._
 

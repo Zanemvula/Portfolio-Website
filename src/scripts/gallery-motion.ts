@@ -79,8 +79,8 @@ function chapters(gsap: Gsap, ScrollTrigger: ScrollTriggerT, lenis?: LenisT) {
       const d = depthOf(layer);
       seq.fromTo(
         layer,
-        { scale: 1.12 + 0.1 * d, xPercent: 3.5 * d, yPercent: 1.5 * d },
-        { scale: 1.02 + 0.03 * d, xPercent: -3.5 * d, yPercent: -1.5 * d, duration: SPAN + 1 },
+        { scale: 1.05 + 0.05 * d, xPercent: 2.5 * d, yPercent: 1 * d },
+        { scale: 1 + 0.02 * d, xPercent: -2.5 * d, yPercent: -1 * d, duration: SPAN + 1 },
         at - 0.3,
       );
     }

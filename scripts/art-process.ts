@@ -5,6 +5,7 @@
  *   npm run art:process -- chatly hero      # only these scenes
  *   npm run art:process -- --upload         # publish to gs://ntsikagqiba-assets/paintings/ and update content/paintings.json
  *   npm run art:process -- --from-gcs --upload   # CI: fetch originals from gs://…/originals/ first
+ *   npm run art:process -- --no-align       # skip re-seating cut-outs on the master painting
  *
  * Each layer becomes AVIF + WebP at three widths; each landscape scene also
  * gets a 1200×630 share card. Files are named <key>-r<revision>-<layer>-<width>.<ext>,
@@ -15,11 +16,13 @@ import { existsSync, mkdirSync, readdirSync, copyFileSync, rmSync } from 'node:f
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import sharp from 'sharp';
+import { MIN_CORRELATION, centralCoverage, cutFromMaster, findPlacement, patchBackdrop, placedAlpha } from './lib/align';
 import { INBOX, OUT, LOCAL_PUBLIC, MANIFEST, LOCAL_MANIFEST, SIZE, WIDTHS, args, loadScenes, readManifest, writeManifest, type SceneItem } from './lib/art';
 
 const BUCKET = process.env.ART_BUCKET ?? 'ntsikagqiba-assets';
 const { keys, has } = args();
 const upload = has('upload');
+const align = !has('no-align');
 
 const gcloud = (argv: string[]) => {
   const res = spawnSync('gcloud', argv, { stdio: 'inherit' });
@@ -81,6 +84,32 @@ for (const s of scenes) {
   for (const id of present) {
     normalised.set(id, await sharp(join(dir, `${id}.png`)).resize(w, h, { fit: 'cover' }).png().toBuffer());
   }
+
+  // Image models redraw cut-outs rather than cutting them; re-seat each one on the master painting.
+  const master = normalised.get('full');
+  if (align && master) {
+    const masks: Buffer[] = [];
+    for (const layer of s.layers.filter((l) => l.transparent && normalised.has(l.id))) {
+      const cut = normalised.get(layer.id)!;
+      const p = await findPlacement(master, cut, w, h);
+      if (p && p.correlation >= MIN_CORRELATION) {
+        const alpha = await placedAlpha(cut, p, w, h);
+        normalised.set(layer.id, await cutFromMaster(master, alpha, w, h));
+        masks.push(alpha);
+        console.log(`  ${s.key}/${layer.id}: re-seated on the master (scale ${p.scale.toFixed(3)}, match ${p.correlation.toFixed(2)})`);
+      } else if ((await centralCoverage(cut, w, h)) < 0.05) {
+        console.log(`  ${s.key}/${layer.id}: not in the master; kept as edge framing`);
+      } else {
+        normalised.delete(layer.id);
+        console.log(`  ${s.key}/${layer.id}: not in the master and covers the subject; dropped`);
+      }
+    }
+    for (const layer of s.layers.filter((l) => !l.transparent && normalised.has(l.id))) {
+      normalised.set(layer.id, await patchBackdrop(master, normalised.get(layer.id)!, masks, w, h));
+    }
+  }
+  const published = [...normalised.keys()];
+
   for (const [id, buf] of normalised) {
     for (const width of WIDTHS[s.format]) {
       const name = `${s.key}-r${s.revision}-${id}-${width}`;
@@ -90,8 +119,8 @@ for (const s of scenes) {
   }
   const og = s.format === 'landscape';
   if (og) await shareCard(normalised, join(OUT, `${s.key}-r${s.revision}-og.jpg`));
-  processed.push({ s, layers: present, og, width: w, height: h });
-  console.log(`✓ ${s.key} r${s.revision}: ${present.join(', ')}`);
+  processed.push({ s, layers: published, og, width: w, height: h });
+  console.log(`✓ ${s.key} r${s.revision}: ${published.join(', ')}`);
 }
 
 if (processed.length === 0) {
