@@ -2,7 +2,7 @@
  * Scaffolds a new painting for the Hall of Works:
  *   npm run new-project my-project-slug
  * Writes content/projects/<slug>.md with every frontmatter field and TODOs.
- * Then: fill the TODOs, run `npm run todos`, and generate its painting.
+ * Then: fill the TODOs, run `npm run todos`, and paint its scene (ART.md).
  */
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -50,10 +50,15 @@ problem: "TODO: 2–3 sentences — who had what problem?"
 role: "TODO: your role in one line"
 stack: [] # TODO: services, runtimes, databases, CI/CD, monitoring
 links: {} # TODO: { github: https://…, live: https://…, caseStudy: https://… }
-painting:
-  prompt: "TODO: describe a Renaissance scene that is a metaphor for the project — no text, logos or real people"
+scene:
+  prompt: "TODO: a wide Renaissance scene that is a metaphor for the project — backdrop, middle-ground figures, a few near objects; no text, logos or real people"
   revision: 1
   alt: "TODO: one-sentence description of the painting for screen readers"
+  focus: center # left | center | right — where the subject sits
+  layers:
+    - { id: plate, depth: 0, transparent: false, contains: "TODO: the empty backdrop, with the figures and near objects removed" }
+    - { id: figures, depth: 0.55, contains: "TODO: only the figures" }
+    - { id: foreground, depth: 1, contains: "TODO: only the nearest objects along the bottom edge" }
 # architecture:
 #   tiers:
 #     - label: Users
@@ -76,4 +81,4 @@ console.log(`Created ${file}
 Next:
   1. Fill in the TODOs (npm run todos lists them).
   2. Set draft: false when it is ready to hang.
-  3. Generate its painting: npm run paintings:generate -- ${slug}`);
+  3. Paint it: npm run art:brief, then follow its section in ART.md.`);

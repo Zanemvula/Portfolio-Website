@@ -1,0 +1,89 @@
+name: Art
+
+# Publishes the scene paintings. Default: take the PNGs you uploaded to
+# gs://ntsikagqiba-assets/originals/<scene>/ (from ChatGPT), convert them to
+# AVIF/WebP, upload them to gs://ntsikagqiba-assets/paintings/, commit
+# content/paintings.json and deploy. Optionally paint missing scenes with the
+# OpenAI API first. Run it by hand from the Actions tab.
+on:
+  workflow_dispatch:
+    inputs:
+      scenes:
+        description: 'Space-separated scene keys (e.g. "hero chatly"). Empty = every scene with originals.'
+        required: false
+        default: ''
+      generate:
+        description: Paint scenes that have no originals with the OpenAI API first (needs the OPENAI_API_KEY secret)
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  id-token: write
+  actions: write
+
+concurrency:
+  group: art
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    if: ${{ vars.WIF_PROVIDER != '' && vars.WIF_SA != '' }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ vars.WIF_PROVIDER }}
+          service_account: ${{ vars.WIF_SA }}
+
+      - uses: google-github-actions/setup-gcloud@v3
+
+      - name: Fetch originals
+        run: |
+          mkdir -p art
+          if gcloud storage ls "gs://ntsikagqiba-assets/originals/" >/dev/null 2>&1; then
+            gcloud storage cp -r "gs://ntsikagqiba-assets/originals/*" art/
+          fi
+
+      - name: Paint missing scenes with the API
+        if: ${{ inputs.generate }}
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          PAINTING_MODEL: ${{ vars.PAINTING_MODEL }}
+          SCENES: ${{ inputs.scenes }}
+        run: npx tsx scripts/art-generate.ts $SCENES
+
+      - name: Convert and publish
+        env:
+          SCENES: ${{ inputs.scenes }}
+        run: npx tsx scripts/art-process.ts $SCENES --upload
+
+      - name: Commit the manifest
+        id: commit
+        run: |
+          if git diff --quiet -- content/paintings.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add content/paintings.json
+          git commit -m "chore(art): publish ${{ inputs.scenes || 'scenes' }}"
+          git push
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      # Pushes made with GITHUB_TOKEN do not trigger workflows, so start the deploy explicitly.
+      - name: Deploy
+        if: steps.commit.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy.yml --ref "${GITHUB_REF_NAME}"
