@@ -1,0 +1,23 @@
+[
+  {
+    "id": "aws-saa",
+    "title": "AWS Certified Solutions Architect – Associate",
+    "provider": "Amazon Web Services",
+    "url": "https://aws.amazon.com/certification/certified-solutions-architect-associate/",
+    "status": "in-progress",
+    "started": "TODO: start month (YYYY-MM)",
+    "target": "TODO: target exam month (YYYY-MM)",
+    "nextStep": "TODO: current module or next milestone",
+    "order": 1
+  },
+  {
+    "id": "networking",
+    "title": "Networking fundamentals",
+    "provider": "Professor Messer",
+    "url": "https://www.professormesser.com/",
+    "status": "studying",
+    "started": "TODO: start month (YYYY-MM)",
+    "nextStep": "TODO: current section or next milestone",
+    "order": 2
+  }
+]

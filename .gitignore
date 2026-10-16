@@ -1,49 +1,25 @@
-```
 # Dependencies
 node_modules/
 
-# Environment
-.env
-.env.local
-.env.*
-
-# Logs and temp files
-*.log
-*.tmp
-
-# Editors
-.vscode/
-.idea/
-
-# Python
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-venv/
-.venv/
-.env
-.env.local
-.env.*
-.mypy_cache/
-.pytest_cache/
-.coverage
-coverage/
-htmlcov/
-
-# Build outputs
+# Build output
 dist/
-build/
-*.egg-info/
-.eggs/
+.astro/
 
-# Node.js
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+# Secrets — never commit
+.env
+.env.*
+!.env.example
 
-# OS generated files
+# Generated media (lives in gs://ntsikagqiba-assets, never in git)
+.cache/
+out/
+
+# Lighthouse CI reports
+.lighthouseci/
+
+# Logs / OS / editors
+*.log
 .DS_Store
 Thumbs.db
-```
+.vscode/
+.idea/
