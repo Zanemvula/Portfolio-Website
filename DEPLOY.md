@@ -106,7 +106,7 @@ gcloud artifacts repositories add-iam-policy-binding "$REPO" --location="$REGION
 # Deploy as the runtime SA only (not every SA in the project)
 gcloud iam service-accounts add-iam-policy-binding "$RUN_SA" \
   --member="serviceAccount:$SA" --role=roles/iam.serviceAccountUser
-# Upload paintings to this one bucket only (paintings.yml)
+# Upload art to this one bucket only (art.yml)
 gcloud storage buckets add-iam-policy-binding "gs://$BUCKET" \
   --member="serviceAccount:$SA" --role=roles/storage.objectAdmin
 
@@ -140,7 +140,7 @@ Add these under **Settings → Secrets and variables → Actions**. The four ide
 | `RUN_SA` | variable | `portfolio-runtime@<project>.iam.gserviceaccount.com` |
 | `GCP_PROJECT_ID` | variable | your project ID |
 | `PAINTING_MODEL` | variable (optional) | leave unset for `gpt-image-1` |
-| `OPENAI_API_KEY` | **secret** | your OpenAI key, used only by `paintings.yml` |
+| `OPENAI_API_KEY` | **secret** | your OpenAI key, optional: only for API painting in `art.yml` |
 
 Or, with the GitHub CLI:
 
@@ -186,25 +186,33 @@ gcloud run revisions list --service "$SERVICE" --region "$REGION"
 gcloud run services update-traffic "$SERVICE" --region "$REGION" --to-revisions=<REVISION>=100
 ```
 
-## 7. Paintings
+## 7. Art (the painted scenes)
 
-From the Actions tab, run **Paintings**. Leave *keys* empty to paint everything not yet published.
-The workflow generates the paintings, converts them, uploads them to
-`gs://ntsikagqiba-assets/paintings/` with `Cache-Control: public, max-age=31536000, immutable`,
-commits `content/paintings.json`, and then triggers a deploy.
+The scenes are painted in ChatGPT; [ART.md](ART.md) holds every prompt. Publish them in one of three ways:
 
-To repaint one painting, bump `painting.revision` in its file and run the workflow with that key.
-Published filenames include the revision (`chatly-r2-768.avif`), so immutable caching stays
-correct.
-
-To run it locally instead, put `OPENAI_API_KEY` in `.env` and log in with `gcloud auth login`:
+**A. Through the bucket (no tools needed).** In the Cloud Console, open `gs://ntsikagqiba-assets`
+and upload your `art/<scene>/` folders into `originals/`, so you have `originals/hero/full.png`,
+`originals/hero/plate.png` and so on. Then run the **Art** workflow from the Actions tab. It
+converts, publishes to `paintings/`, commits `content/paintings.json` and deploys.
 
 ```bash
-npm run paintings:generate -- --dry-run     # review the prompts first
-npm run paintings:generate
-npm run paintings:process                   # inspect .cache/out/paintings
-npm run paintings:process -- --upload
+# the same upload from a terminal
+gcloud storage cp -r art/* gs://ntsikagqiba-assets/originals/
 ```
+
+**B. From your machine:**
+
+```bash
+npm run art:process                 # preview: http://localhost:4321 after `npm run dev`
+npm run art:process -- --upload     # publish, then commit content/paintings.json
+```
+
+**C. With the OpenAI API instead of ChatGPT** (optional): set the `OPENAI_API_KEY` secret and
+run the **Art** workflow with *Paint missing scenes* ticked, or locally run
+`npm run art:generate -- hero` with the key in `.env`.
+
+Published files are named `<scene>-r<revision>-<layer>-<width>.(avif|webp)` and cached as
+`immutable`. To repaint, bump the scene's `revision` in its content file first.
 
 ## 8. CV and videos
 

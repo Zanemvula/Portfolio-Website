@@ -41,17 +41,17 @@ Newest last. Change any of them by editing the code and adding a line here.
 
 ## Motion
 
-25. **GSAP + ScrollTrigger, no Lenis.** Smooth-scroll hijacking hurts low-end Android and assistive tech; native scroll plus scrubbed ScrollTrigger gives most of the feel. GSAP is imported dynamically, after the page has rendered.
-26. **The horizontal walk runs only at ≥ 64rem with a fine pointer.** Phones and tablets get a vertical hang with reveals. Keyboard focus on an off-screen painting scrolls the walk to it.
+25. ~~**GSAP + ScrollTrigger, no Lenis.**~~ _Superseded by 41._ Smooth-scroll hijacking hurts low-end Android and assistive tech; native scroll plus scrubbed ScrollTrigger gives most of the feel. GSAP is imported dynamically, after the page has rendered.
+26. ~~**The horizontal walk runs only at ≥ 64rem with a fine pointer.**~~ _Superseded by 40._ Phones and tablets get a vertical hang with reveals. Keyboard focus on an off-screen painting scrolls the walk to it.
 27. **Stepping into a painting uses native cross-document View Transitions** (`@view-transition`), with no client router. Only the clicked painting gets the shared `view-transition-name` (set in `pageswap`/`pagereveal`). Browsers without support just navigate.
 28. **`prefers-reduced-motion: reduce` disables all of it**: no GSAP initialisation, no view transitions, and CSS transitions are cut to ~0. The CSS layout is the complete static fallback.
 
 ## Images
 
-29. **The painting model defaults to `gpt-image-1`, as briefed.** The installed OpenAI SDK also lists `gpt-image-2` and `gpt-image-2.5-*`. Set the `PAINTING_MODEL` repo variable to try one; no other change is needed.
-30. **Portrait 1024×1536 for works, 1024×1024 tondi for crafts**, published as AVIF and WebP at 480, 768 and 1024 px, plus a 1200×630 JPEG share card per project. Social crawlers don't reliably read AVIF/WebP.
+29. _(Still true for `npm run art:generate`; ChatGPT is now the primary route — see 43.)_ **The painting model defaults to `gpt-image-1`, as briefed.** The installed OpenAI SDK also lists `gpt-image-2` and `gpt-image-2.5-*`. Set the `PAINTING_MODEL` repo variable to try one; no other change is needed.
+30. ~~**Portrait 1024×1536 for works, 1024×1024 tondi for crafts**~~ _Superseded by 42._, published as AVIF and WebP at 480, 768 and 1024 px, plus a 1200×630 JPEG share card per project. Social crawlers don't reliably read AVIF/WebP.
 31. **Filenames carry the revision** (`<key>-r<rev>-<width>.<ext>`), which is what makes `immutable` caching safe. `content/paintings.json` is only updated after a successful upload.
-32. **Generation runs in GitHub Actions** (`paintings.yml`), with the key as a repo secret and WIF for the bucket. No key on a laptop or in this repo, though local runs with `.env` still work.
+32. ~~**Generation runs in GitHub Actions** (`paintings.yml`)~~ _Superseded by 43._, with the key as a repo secret and WIF for the bucket. No key on a laptop or in this repo, though local runs with `.env` still work.
 33. **The share image for the home page (`public/og-default.jpg`) and the touch icon are committed.** They are small brand assets rendered by `scripts/make-static-assets.mjs`, not generated paintings.
 
 ## Deployment
@@ -61,3 +61,18 @@ Newest last. Change any of them by editing the code and adding a line here.
 36. **Least-privilege IAM, tighter than `portfolio-ops.md`.** `iam.serviceAccountUser` is granted on the runtime SA only (not project-wide), `artifactregistry.writer` on the one repository, and `storage.objectAdmin` on the one bucket. `run.admin` stays project-level, because `--allow-unauthenticated` needs `setIamPolicy`.
 37. **The image is rebuilt in the deploy job from the same commit** using the GitHub Actions layer cache, rather than shipping a tarball between jobs. Lighthouse in `ci.yml` runs against that same Dockerfile and lockfile.
 38. **Lighthouse CI runs against the real Caddy container**, so headers and compression are part of what is measured: mobile emulation, median of 3 runs, every category ≥ 0.90. Measured locally on 2026-10-16 before any paintings existed: performance 97–99, accessibility 100, best practices 100, SEO 100.
+
+## 2026-10-16 · The Edition redesign
+
+Ntsika's verdict on the first build: it "missed the design and feeling of the Shopify build". Correct: the Winter '26 Edition is a scroll-driven run of full-screen, 3D-layered Renaissance paintings with parallax depth, scroll-scrubbed camera moves and brushstroke transitions between scenes. The first build hung small framed pictures on a wall. The live reference site couldn't be inspected from the build environment (shopify.com and awwwards.com are blocked by its network policy), so the redesign follows the published descriptions (RGD, Awwwards, Shopify News). It recreates the *techniques* with original code and art. No Shopify assets, code or branding are used.
+
+39. **Frontispiece: one gilded frame on the damask wall.** Scrolling pins it and flies the camera through the frame until the painting fills the screen; then the value statement and calls to action land over the painting. This is the hand-off from "gallery" to "edition".
+40. **Chapters replace the hall.** Each work is a full-screen painted chapter. They share one pinned stage and play as a scroll-scrubbed sequence. Each chapter is wiped in with a dry-brush mask (`public/brush-wipe.webp`, ~29 KB, rendered by `scripts/make-static-assets.mjs`), while its layers drift at speeds set by their `depth`. Copy and a brass plaque rise in, then clear before the next wipe.
+41. **Lenis smooth scrolling, on fine pointers only.** The cinematic feel depends on it; touch devices keep native scrolling, and reduced motion gets none. This reverses decision 25.
+42. **Scenes are layered.** A scene is one painting cut into up to four aligned layers (backdrop + transparent cut-outs), 1536×1024 landscape, plus square 1024 tondi for crafts. A scene with only `full.png` still renders, with a camera push and no depth. Until art exists, each scene shows a **sinopia**, the red-ochre under-drawing a fresco painter puts on the plaster, drawn as two SVG layers so the depth still reads.
+43. **Ntsika paints in ChatGPT; the site does the rest.** `npm run art:brief` writes ART.md from the content files, with every master prompt and layer-extraction prompt ready to paste. Exports go in `art/<scene>/`. `npm run art:process` previews locally (same-origin, gitignored), and `--upload` publishes to GCS. The **Art** workflow does the same from `gs://…/originals/`. `npm run art:generate` (OpenAI API, with `images.edit` for the cut-outs) remains an optional route.
+44. **Contents page** after the opening: an editorial table of contents with Roman numerals, linking into the sequence. The anchors resolve to the moment each chapter is fully shown, not to the top of the pinned stage. **A chapter rail** (right edge on desktop, top progress bar on phones) shows where you are.
+45. **Brushed edges** (`public/brush-edge.webp`) where parchment sections meet paintings.
+46. **Project rooms open on a full-bleed scene**, the same painting as the chapter. The view transition morphs the chapter's scene into the room's hero.
+47. **Performance guard: the chapter sequence is built lazily**, when the reader comes within 1.5 screens of it, a chapter link is clicked, or the URL points into it. Building it at load cost ~570 ms of main-thread time under Lighthouse's mobile CPU throttle and pulled the home page to 84–89. Lazy, with layered test art in place: home 95–96, rooms 96–97, accessibility, best practices and SEO all 100.
+48. **Copy is faded with opacity, never `visibility`**, so every chapter link stays in the tab order. Focusing one scrolls the sequence to that chapter. Inactive chapters get `pointer-events: none`.

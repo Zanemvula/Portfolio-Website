@@ -5,12 +5,12 @@
 - [ ] **Rotate the Gemini API key** in Google AI Studio (the old build exposed it client-side).
 - [ ] Push the `v1-ai-studio` tag (DEPLOY.md §0) — this session's git proxy refused the tag push.
 - [ ] Run the GCP bootstrap (DEPLOY.md §1–4).
-- [ ] Add repo variables `WIF_PROVIDER`, `WIF_SA`, `RUN_SA`, `GCP_PROJECT_ID` and the secret `OPENAI_API_KEY` (DEPLOY.md §5).
+- [ ] Add repo variables `WIF_PROVIDER`, `WIF_SA`, `RUN_SA`, `GCP_PROJECT_ID` and, only if you want API painting, the secret `OPENAI_API_KEY` (DEPLOY.md §5).
 - [ ] Re-run the latest **Deploy** workflow → note the `run.app` URL (DEPLOY.md §6).
 - [ ] Create a Formspree form; put its ID in `content/site.json` → `contact.formspreeId`.
 - [ ] Upload the CV to the bucket and set `cv` in `content/site.json` (DEPLOY.md §8). Check it reflects the Software Engineer role (Sep 2026).
 - [ ] Consider a Calendly event aimed at hiring managers (e.g. "30-min intro call"); the current link is `free-strategy-session`, which reads as an agency sales call.
-- [ ] Run the **Paintings** workflow once the bootstrap is done (DEPLOY.md §7).
+- [ ] **Paint the scenes in ChatGPT** following [ART.md](ART.md). Start with the Frontispiece and Chatly; send me the PNGs in chat for a preview, or publish via DEPLOY.md §7.
 - [ ] Domain: verify ntsikagqiba.com, create the mappings, add the DNS records (DEPLOY.md §9).
 - [ ] After cut-over: `portfolio.md` → `draft: false`, merge `v2-gallery`, remove `v2-gallery` from `deploy.yml`/`ci.yml`, retire the old host.
 - [ ] Afterwards: profile README repo `Zanemvula/Zanemvula` and one case-study repo per project (I will ask for the facts).
@@ -31,10 +31,10 @@ _Facts only you can supply. Generated from /content — edit the content files, 
 - [ ] L16: Google Cloud services used (e.g. which compute, database, queues)
 - [ ] L17: language / framework, payment provider
 - [ ] L19: public URL if one exists
-- [ ] L25: replace with the real architecture once you supply the services
-- [ ] L35: dated entries, e.g. { date: 2025-06, note: "Launched …" }
-- [ ] L40: what you built, in bullets — components you personally designed, built or run.
-- [ ] L41: architecture walk-through — how a message becomes a quote, then a payment.
+- [ ] L30: replace with the real architecture once you supply the services
+- [ ] L40: dated entries, e.g. { date: 2025-06, note: "Launched …" }
+- [ ] L45: what you built, in bullets — components you personally designed, built or run.
+- [ ] L46: architecture walk-through — how a message becomes a quote, then a payment.
 
 ### `content/projects/comfy-shoes.md`
 
@@ -42,19 +42,19 @@ _Facts only you can supply. Generated from /content — edit the content files, 
 - [ ] L11: 2–3 sentences — what did the brand need before the platform?
 - [ ] L15: storefront platform / framework, database, payments, CDN, monitoring
 - [ ] L17: storefront URL (public site only)
-- [ ] L23: replace with the real architecture
-- [ ] L33: dated entries
-- [ ] L38: what you built, in bullets.
-- [ ] L39: how it is deployed, backed up and monitored.
+- [ ] L28: replace with the real architecture
+- [ ] L38: dated entries
+- [ ] L43: what you built, in bullets.
+- [ ] L44: how it is deployed, backed up and monitored.
 
 ### `content/projects/crm-on-aws.md`
 
 - [ ] L4: year, e.g. 2026
 - [ ] L11: 2–3 sentences — why the CRM is moving to AWS / what it replaces.
 - [ ] L15: AWS services, IaC tool, CI/CD system
-- [ ] L22: services, IaC and CI details
-- [ ] L32: dated entries
-- [ ] L37: what you built, in bullets — services, IaC, CI/CD.
+- [ ] L27: services, IaC and CI details
+- [ ] L37: dated entries
+- [ ] L42: what you built, in bullets — services, IaC, CI/CD.
 
 ### `content/projects/erpnext-rollout.md`
 
@@ -62,10 +62,10 @@ _Facts only you can supply. Generated from /content — edit the content files, 
 - [ ] L5: live | in-progress
 - [ ] L11: 2–3 sentences — how were the branches run before ERPNext?
 - [ ] L17: VPS provider, OS, database, backups, what you automated
-- [ ] L24: hosting details
-- [ ] L38: dated entries
-- [ ] L43: hosting details (provider, sizing, backups).
-- [ ] L44: what you automated.
+- [ ] L29: hosting details
+- [ ] L43: dated entries
+- [ ] L48: hosting details (provider, sizing, backups).
+- [ ] L49: what you automated.
 
 ### `content/projects/portfolio.md`
 
@@ -80,10 +80,10 @@ _Facts only you can supply. Generated from /content — edit the content files, 
 - [ ] L11: 2–3 sentences — what went wrong between stock on the floor and the online store?
 - [ ] L12: your role on RetailBridge
 - [ ] L15: stack
-- [ ] L22: real components
-- [ ] L36: dated entries
-- [ ] L41: what you built, in bullets.
-- [ ] L42: status and stack.
+- [ ] L27: real components
+- [ ] L41: dated entries
+- [ ] L46: what you built, in bullets.
+- [ ] L47: status and stack.
 
 ### `content/projects/sentry-on-oci.md`
 
@@ -92,8 +92,8 @@ _Facts only you can supply. Generated from /content — edit the content files, 
 - [ ] L10: 2–3 sentences — why self-host error tracking?
 - [ ] L15: install method, sizing, which services report to it
 - [ ] L17: case-study repo URL once it exists
-- [ ] L36: dated entries
-- [ ] L41: status, which services report to it, how it is maintained.
+- [ ] L41: dated entries
+- [ ] L46: status, which services report to it, how it is maintained.
 
 ### `content/site.json`
 
@@ -105,8 +105,8 @@ _Facts only you can supply. Generated from /content — edit the content files, 
 
 ### `content/skills.json`
 
-- [ ] L39: confirm Docker is still 'in apprenticeship'" },
-- [ ] L40: confirm CI/CD is still 'in apprenticeship'" }
+- [ ] L59: confirm Docker is still 'in apprenticeship'
+- [ ] L64: confirm CI/CD is still 'in apprenticeship'
 
 ### `content/studying.json`
 
