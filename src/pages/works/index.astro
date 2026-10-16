@@ -1,0 +1,46 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getWorks } from '../../lib/content';
+import { known, roman, CLOUD_LABELS, STATUS_LABELS } from '../../lib/site';
+
+const works = await getWorks();
+---
+
+<Base
+  title="Catalogue of works"
+  description="Plain-text catalogue of the systems Ntsika Gqiba has built and runs on AWS, Oracle Cloud and Google Cloud."
+  lightHeader
+>
+  <div class="catalogue">
+    <div class="wrap prose">
+      <p class="eyebrow">Catalogue</p>
+      <h1>The works, in plain text</h1>
+      <p>The same works as the hall, without the walk. Each links to its room.</p>
+      <ol class="catalogue__list">
+        {
+          works.map((w) => (
+            <li>
+              <span class="no">{roman(w.data.order)}</span>
+              <div>
+                <h2>
+                  <a href={`/works/${w.id}/`}>{w.data.title}</a>
+                </h2>
+                <p>{w.data.summary}</p>
+                <p class="meta">
+                  {[
+                    known(w.data.year),
+                    STATUS_LABELS[w.data.status],
+                    w.data.clouds.map((c) => CLOUD_LABELS[c]).join(', '),
+                    w.data.stack.slice(0, 5).join(', '),
+                  ]
+                    .filter(Boolean)
+                    .join(' · ')}
+                </p>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </div>
+</Base>

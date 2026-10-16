@@ -1,0 +1,51 @@
+---
+import { site, known, mailtoUrl } from '../lib/site';
+const formspreeId = known(site.contact.formspreeId);
+const action = formspreeId ? `https://formspree.io/f/${formspreeId}` : undefined;
+---
+
+<div class="letter">
+  <h3>Write a letter</h3>
+  {
+    action ? (
+      <form action={action} method="POST" data-contact-form>
+        <div class="field">
+          <label for="cf-name">Your name</label>
+          <input id="cf-name" name="name" type="text" autocomplete="name" required maxlength="120" />
+        </div>
+        <div class="field">
+          <label for="cf-email">Email</label>
+          <input id="cf-email" name="email" type="email" autocomplete="email" required maxlength="200" />
+        </div>
+        <div class="field">
+          <label for="cf-message">Message</label>
+          <textarea id="cf-message" name="message" required maxlength="5000" />
+        </div>
+        <div class="field field--trap" aria-hidden="true">
+          <label for="cf-gotcha">Leave this empty</label>
+          <input id="cf-gotcha" name="_gotcha" type="text" tabindex="-1" autocomplete="off" />
+        </div>
+        <input type="hidden" name="_subject" value="New message from ntsikagqiba.com" />
+        <button class="btn btn--ink" type="submit">Send</button>
+        <p class="form-status" role="status" aria-live="polite" data-form-status />
+        <p class="form-status">
+          Or email <a href={mailtoUrl()}>{site.contact.email}</a> directly.
+        </p>
+      </form>
+    ) : (
+      <>
+        <p>
+          Email reaches me directly at <a href={mailtoUrl()}>{site.contact.email}</a>.
+        </p>
+        <a class="btn btn--ink" href={mailtoUrl()}>
+          Email me
+        </a>
+      </>
+    )
+  }
+</div>
+
+<script>
+  import { initContactForm } from '../scripts/contact-form';
+  initContactForm();
+</script>

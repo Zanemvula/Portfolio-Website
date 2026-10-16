@@ -1,0 +1,18 @@
+---
+interface Props {
+  no?: string;
+  title: string;
+  /** Lines below the title, e.g. year and stack. Empty values are dropped. */
+  meta?: (string | undefined)[];
+  headingLevel?: 'h2' | 'h3' | 'p';
+}
+const { no, title, meta = [], headingLevel = 'h3' } = Astro.props;
+const Heading = headingLevel;
+const lines = meta.filter((m): m is string => Boolean(m && m.trim()));
+---
+
+<div class="plaque">
+  {no && <span class="plaque__no">No. {no}</span>}
+  <Heading class="plaque__title">{title}</Heading>
+  {lines.map((line) => <span class="plaque__meta">{line}</span>)}
+</div>

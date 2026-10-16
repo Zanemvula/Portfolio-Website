@@ -1,0 +1,23 @@
+---
+/** Ornate gilded frame drawn in CSS + one inline SVG ornament (#ornament-corner, defined in Base). */
+interface Props {
+  shape?: 'rect' | 'tondo';
+  class?: string;
+}
+const { shape = 'rect', class: className } = Astro.props;
+---
+
+<div class:list={['frame', shape === 'tondo' && 'tondo', className]}>
+  {
+    shape === 'rect' &&
+      (['tl', 'tr', 'bl', 'br'] as const).map((c) => (
+        <svg class={`frame__corner frame__corner--${c}`} viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+          <use href="#ornament-corner" />
+        </svg>
+      ))
+  }
+  <div class="frame__sight">
+    <slot />
+    <span class="frame__light" aria-hidden="true"></span>
+  </div>
+</div>

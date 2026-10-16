@@ -1,0 +1,166 @@
+---
+/**
+ * Renders a project's `architecture` frontmatter as an inline SVG at build time.
+ * Tiers are rows drawn top to bottom; edges connect node ids. No client JS.
+ */
+interface Node {
+  id: string;
+  label: string;
+  note?: string | undefined;
+}
+interface Props {
+  id: string;
+  title: string;
+  tiers: { label: string; nodes: Node[] }[];
+  edges: { from: string; to: string; label?: string | undefined }[];
+}
+const { id, title, tiers, edges } = Astro.props;
+
+const W = 720;
+const PAD = 16;
+const GAP_X = 60;
+const TIER_LABEL = 26;
+const ROW_GAP = 64;
+const LABEL_SIZE = 15;
+const NOTE_SIZE = 12;
+const LINE = 19;
+
+/** Greedy word wrap to an approximate character budget. */
+const wrap = (text: string, max: number) => {
+  const lines: string[] = [];
+  let line = '';
+  for (const word of text.split(/\s+/)) {
+    if (line && (line + ' ' + word).length > max) {
+      lines.push(line);
+      line = word;
+    } else {
+      line = line ? `${line} ${word}` : word;
+    }
+  }
+  if (line) lines.push(line);
+  return lines;
+};
+
+interface Placed extends Node {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  row: number;
+  lines: string[];
+  noteLines: string[];
+}
+
+const placed = new Map<string, Placed>();
+const rows: { label: string; y: number }[] = [];
+let y = PAD;
+
+tiers.forEach((tier, row) => {
+  const n = tier.nodes.length;
+  const w = Math.min(230, (W - 2 * PAD - (n - 1) * GAP_X) / n);
+  const chars = Math.floor(w / (LABEL_SIZE * 0.56));
+  const noteChars = Math.floor(w / (NOTE_SIZE * 0.55));
+  const wrapped = tier.nodes.map((node) => ({
+    lines: wrap(node.label, chars),
+    noteLines: node.note ? wrap(node.note, noteChars) : [],
+  }));
+  const h = Math.max(...wrapped.map((t) => t.lines.length * LINE + t.noteLines.length * 16)) + 26;
+  const total = n * w + (n - 1) * GAP_X;
+  const x0 = (W - total) / 2;
+  rows.push({ label: tier.label, y });
+  const boxY = y + TIER_LABEL;
+  tier.nodes.forEach((node, i) => {
+    const t = wrapped[i]!;
+    placed.set(node.id, { ...node, x: x0 + i * (w + GAP_X), y: boxY, w, h, row, lines: t.lines, noteLines: t.noteLines });
+  });
+  y = boxY + h + ROW_GAP;
+});
+
+const H = y - ROW_GAP + PAD;
+
+const paths = edges.flatMap((edge) => {
+  const a = placed.get(edge.from);
+  const b = placed.get(edge.to);
+  if (!a || !b) return [];
+  let d: string;
+  let lx: number;
+  let ly: number;
+  if (a.row === b.row) {
+    const leftToRight = a.x < b.x;
+    const x1 = leftToRight ? a.x + a.w : a.x;
+    const x2 = leftToRight ? b.x : b.x + b.w;
+    const yy = a.y + a.h / 2;
+    d = `M${x1},${yy} L${x2 + (leftToRight ? -6 : 6)},${yy}`;
+    lx = (x1 + x2) / 2;
+    ly = yy - 10;
+  } else {
+    const down = b.row > a.row;
+    const x1 = a.x + a.w / 2;
+    const y1 = down ? a.y + a.h : a.y;
+    const x2 = b.x + b.w / 2;
+    const y2 = down ? b.y - 6 : b.y + b.h + 6;
+    const my = (y1 + y2) / 2;
+    d = `M${x1},${y1} C${x1},${my} ${x2},${my} ${x2},${y2}`;
+    lx = (x1 + x2) / 2;
+    ly = my;
+  }
+  return [{ d, label: edge.label, lx, ly }];
+});
+
+const nameOf = (nid: string) => placed.get(nid)?.label ?? nid;
+const description = edges.map((e) => `${nameOf(e.from)} → ${nameOf(e.to)}${e.label ? ` (${e.label})` : ''}`).join('; ');
+const tid = `arch-${id}-title`;
+const did = `arch-${id}-desc`;
+const marker = `arch-${id}-arrow`;
+---
+
+<figure class="plate">
+  <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-labelledby={tid} aria-describedby={did} font-family="Inter Variable, Inter, system-ui, sans-serif">
+    <title id={tid}>{title} — architecture</title>
+    <desc id={did}>{description || 'Components of the system.'}</desc>
+    <defs>
+      <marker id={marker} viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="#7a5a1e"></path>
+      </marker>
+    </defs>
+    {
+      rows.map((r) => (
+        <text x={PAD} y={r.y + 14} font-size="11" letter-spacing="2.2" fill="#7a5a1e" font-family="Cinzel, serif">
+          {r.label.toUpperCase()}
+        </text>
+      ))
+    }
+    {paths.map((p) => <path d={p.d} fill="none" stroke="#7a5a1e" stroke-width="1.6" marker-end={`url(#${marker})`} />)}
+    {
+      [...placed.values()].map((n) => (
+        <g>
+          <rect x={n.x} y={n.y} width={n.w} height={n.h} rx="4" fill="#fffaf0" stroke="#7a5a1e" stroke-width="1.5" />
+          <rect x={n.x + 4} y={n.y + 4} width={n.w - 8} height={n.h - 8} rx="2" fill="none" stroke="#c9a24a" stroke-width="0.8" />
+          {n.lines.map((line, i) => (
+            <text x={n.x + n.w / 2} y={n.y + 13 + LINE * (i + 1) - 4} text-anchor="middle" font-size={LABEL_SIZE} font-weight="600" fill="#1c1712">
+              {line}
+            </text>
+          ))}
+          {n.noteLines.map((line, i) => (
+            <text x={n.x + n.w / 2} y={n.y + 13 + LINE * n.lines.length + 16 * (i + 1) - 2} text-anchor="middle" font-size={NOTE_SIZE} fill="#4a3f33">
+              {line}
+            </text>
+          ))}
+        </g>
+      ))
+    }
+    {
+      paths
+        .filter((p) => p.label)
+        .map((p) => (
+          <g>
+            <rect x={p.lx - (p.label!.length * 6.2) / 2 - 6} y={p.ly - 10} width={p.label!.length * 6.2 + 12} height="18" rx="9" fill="#f3e9d2" stroke="#d6c296" />
+            <text x={p.lx} y={p.ly + 3} text-anchor="middle" font-size="11" fill="#4a3f33">
+              {p.label}
+            </text>
+          </g>
+        ))
+    }
+  </svg>
+  <figcaption>Architecture plate: {title}. Drawn from what can be published about the system.</figcaption>
+</figure>

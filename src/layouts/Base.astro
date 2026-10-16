@@ -1,0 +1,145 @@
+---
+import '@fontsource/cormorant-garamond/latin-500.css';
+import '@fontsource/cormorant-garamond/latin-600.css';
+import '@fontsource/cormorant-garamond/latin-500-italic.css';
+import '@fontsource/cinzel/latin-500.css';
+import '@fontsource/cinzel/latin-600.css';
+import '@fontsource-variable/inter/wght.css';
+import '../styles/tokens.css';
+import '../styles/base.css';
+import '../styles/gallery.css';
+import displayFont from '@fontsource/cormorant-garamond/files/cormorant-garamond-latin-500-normal.woff2?url';
+import Icon from '../components/Icon.astro';
+import { site, whatsappUrl, known } from '../lib/site';
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** Absolute URL of the share image (1200×630). */
+  image?: string;
+  imageAlt?: string;
+  type?: 'website' | 'article';
+  /** Light masthead for parchment pages. */
+  lightHeader?: boolean;
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description = site.description,
+  image = new URL('/og-default.jpg', site.url).href,
+  imageAlt = 'The Gallery of Ntsika Gqiba — a gilded frame on an oxblood gallery wall.',
+  type = 'website',
+  lightHeader = false,
+  noindex = false,
+} = Astro.props;
+
+const fullTitle = title ? `${title} · ${site.name}` : `The Gallery of ${site.name} — ${site.role}`;
+const canonical = new URL(Astro.url.pathname, site.url).href;
+const cv = known(site.cv);
+const current = site.experience.find((e) => e.end === 'present' && e.organisation !== 'Independent');
+
+const person = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: site.name,
+  jobTitle: site.role,
+  url: site.url,
+  email: `mailto:${site.contact.email}`,
+  address: { '@type': 'PostalAddress', addressLocality: 'Johannesburg', addressCountry: 'ZA' },
+  ...(current && { worksFor: { '@type': 'Organization', name: current.organisation } }),
+  alumniOf: { '@type': 'CollegeOrUniversity', name: 'University of the Witwatersrand' },
+  knowsAbout: ['Amazon Web Services', 'Oracle Cloud Infrastructure', 'Google Cloud', 'Linux', 'Networking', 'Docker', 'CI/CD'],
+  sameAs: [site.social.linkedin, site.social.github],
+};
+---
+
+<!doctype html>
+<html lang="en-ZA">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <meta name="theme-color" content="#14110e" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <link rel="preload" href={displayFont} as="font" type="font/woff2" crossorigin />
+    <link rel="preconnect" href="https://storage.googleapis.com" crossorigin />
+
+    <meta property="og:type" content={type} />
+    <meta property="og:site_name" content={`The Gallery of ${site.name}`} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={image} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={imageAlt} />
+    <meta property="og:locale" content="en_ZA" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={image} />
+    <meta name="twitter:image:alt" content={imageAlt} />
+
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(person).replace(/</g, "\\u003c")} />
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <svg width="0" height="0" class="visually-hidden" aria-hidden="true" focusable="false">
+      <symbol id="ornament-corner" viewBox="0 0 64 64">
+        <path fill="currentColor" d="M19 9.5C31 4 45 3.5 60 5.5 47 8 35 10.5 23.5 16.5Z" />
+        <path fill="currentColor" d="M9.5 19C4 31 3.5 45 5.5 60 8 47 10.5 35 16.5 23.5Z" />
+        <circle cx="14" cy="14" r="8" fill="currentColor" />
+        <circle cx="14" cy="14" r="4.2" fill="#7a5a1e" />
+        <circle cx="14" cy="14" r="1.8" fill="currentColor" />
+        <path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" d="M30 10.5c3-5 10-5 11 0 .6 3-2.6 4.6-4.4 3M10.5 30c-5 3-5 10 0 11 3 .6 4.6-2.6 3-4.4" />
+      </symbol>
+    </svg>
+
+    <header class:list={['masthead', lightHeader && 'masthead--light']}>
+      <div class="wrap masthead__inner">
+        <a class="masthead__mark" href="/" aria-label={`${site.name} — home`}>
+          <svg viewBox="0 0 40 40" aria-hidden="true" focusable="false">
+            <rect x="2" y="2" width="36" height="36" fill="none" stroke="#c9a24a" stroke-width="2" />
+            <rect x="6" y="6" width="28" height="28" fill="none" stroke="#c9a24a" stroke-width="0.8" />
+            <text x="20" y="26.5" text-anchor="middle" font-family="Cinzel, serif" font-size="14" font-weight="600" fill="#c9a24a">NG</text>
+          </svg>
+          <span class="nav-wide-mark">Ntsika Gqiba</span>
+        </a>
+        <nav aria-label="Primary">
+          <ul>
+            <li class="nav-wide"><a href="/#works">Works</a></li>
+            <li class="nav-wide"><a href="/#crafts">Crafts</a></li>
+            <li class="nav-wide"><a href="/#apprenticeship">Apprenticeship</a></li>
+            {cv && <li><a href={cv}>CV</a></li>}
+            <li><a href="/#patronage">Contact</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <footer class="colophon">
+      <div class="wrap colophon__inner">
+        <p>© {new Date().getFullYear()} {site.name} · {site.location}</p>
+        <p>
+          Static Astro build, served by Caddy on Cloud Run (europe-west1). <a href={`${site.social.github}/Portfolio-Website`}>Source</a>
+        </p>
+      </div>
+    </footer>
+
+    <a class="wa-fab" href={whatsappUrl()} aria-label="Message Ntsika on WhatsApp" rel="noopener" target="_blank">
+      <Icon name="whatsapp" />
+    </a>
+  </body>
+</html>

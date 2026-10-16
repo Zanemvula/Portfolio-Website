@@ -1,0 +1,41 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { known, formatMonth } from '../lib/site';
+
+interface Props {
+  studies: CollectionEntry<'studying'>[];
+}
+const { studies } = Astro.props;
+const STATUS = { studying: 'Studying', 'in-progress': 'In progress', paused: 'Paused', completed: 'Completed' } as const;
+---
+
+<section class="apprenticeship" id="apprenticeship" aria-labelledby="apprenticeship-title">
+  <div class="wrap">
+    <div class="folio">
+      <p class="eyebrow">Gallery III</p>
+      <h2 id="apprenticeship-title">The Apprenticeship</h2>
+      <p class="folio__intro">What I am studying now.</p>
+      {
+        studies.map((s) => {
+          const started = known(s.data.started);
+          const target = known(s.data.target);
+          const next = known(s.data.nextStep);
+          return (
+            <article class="study">
+              <div class="study__head">
+                <h3>{s.data.title}</h3>
+                <span class="study__status">{STATUS[s.data.status]}</span>
+              </div>
+              <p>
+                {s.data.url ? <a href={s.data.url}>{s.data.provider}</a> : s.data.provider}
+                {started && ` · since ${formatMonth(started)}`}
+                {target && ` · target ${formatMonth(target)}`}
+              </p>
+              {next && <p>Next: {next}</p>}
+            </article>
+          );
+        })
+      }
+    </div>
+  </div>
+</section>

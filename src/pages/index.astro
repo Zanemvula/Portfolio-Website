@@ -1,0 +1,26 @@
+---
+import Base from '../layouts/Base.astro';
+import Hero from '../components/Hero.astro';
+import HallOfWorks from '../components/HallOfWorks.astro';
+import HallOfCrafts from '../components/HallOfCrafts.astro';
+import Provenance from '../components/Provenance.astro';
+import Apprenticeship from '../components/Apprenticeship.astro';
+import Patronage from '../components/Patronage.astro';
+import { getWorks, getCrafts, getStudies } from '../lib/content';
+
+const [works, crafts, studies] = await Promise.all([getWorks(), getCrafts(), getStudies()]);
+---
+
+<Base>
+  <Hero />
+  <HallOfWorks works={works} />
+  <HallOfCrafts crafts={crafts} />
+  <Provenance />
+  <Apprenticeship studies={studies} />
+  <Patronage />
+</Base>
+
+<script>
+  import '../scripts/gallery-motion';
+  import '../scripts/painting-transition';
+</script>
