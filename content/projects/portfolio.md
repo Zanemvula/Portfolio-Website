@@ -25,10 +25,15 @@ stack:
 links:
   github: https://github.com/Zanemvula/Portfolio-Website
   live: https://ntsikagqiba.com
-painting:
-  prompt: Craftsmen on wooden scaffolding hanging gilded framed paintings along a long vaulted gallery, light streaming through high arched windows, a master directing the hang from the marble floor
+scene:
+  prompt: "Craftsmen on wooden scaffolding hang gilded framed paintings along a long vaulted gallery; light streams through high arched windows; a master directs the hang from the marble floor"
   revision: 1
-  alt: Craftsmen on scaffolding hanging gilded paintings along a long vaulted gallery.
+  alt: "Craftsmen on scaffolding hanging gilded paintings along a long vaulted gallery."
+  focus: center
+  layers:
+    - { id: plate, depth: 0, transparent: false, contains: "the empty vaulted gallery with its paintings already hung, with the scaffolding and every person removed" }
+    - { id: figures, depth: 0.55, transparent: true, contains: "only the scaffolding, the craftsmen and the master" }
+    - { id: foreground, depth: 1, transparent: true, contains: "only the open packing crate and drapery along the bottom edge" }
 architecture:
   tiers:
     - label: Source

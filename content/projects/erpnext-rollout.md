@@ -16,10 +16,15 @@ stack:
   - Linux VPS
   # TODO: VPS provider, OS, database, backups, what you automated
 links: {}
-painting:
-  prompt: Stewards from several branch houses arriving at a great vaulted hall, each carrying a bound ledger to a long oak table where a single master ledger lies open, clerks reconciling columns by candlelight and daylight from tall windows
+scene:
+  prompt: "Stewards from several branch houses, each carrying a bound ledger, converge on a long oak table in a vaulted hall where a single great master ledger lies open; clerks reconcile its columns; daylight from tall windows"
   revision: 1
-  alt: Stewards from several houses bringing their ledgers to one master ledger in a vaulted hall.
+  alt: "Stewards from several houses bringing their ledgers to one master ledger in a vaulted hall."
+  focus: center
+  layers:
+    - { id: plate, depth: 0, transparent: false, contains: "the empty vaulted hall, windows, the long table and the open master ledger, with every person removed" }
+    - { id: figures, depth: 0.55, transparent: true, contains: "only the stewards and the clerks" }
+    - { id: foreground, depth: 1, transparent: true, contains: "only the stack of ledgers and the candlestick along the bottom edge" }
 architecture:
   # TODO: hosting details
   tiers:

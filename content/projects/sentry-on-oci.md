@@ -15,10 +15,15 @@ stack:
   # TODO: install method, sizing, which services report to it
 links:
   github: "TODO: case-study repo URL once it exists"
-painting:
-  prompt: A night watchman in a stone tower above a walled Renaissance town holding a lantern, a bronze signal bell beside him, the town's streets lit by scattered torches below and a moonlit sky over the hills
+scene:
+  prompt: "Night: a watchman in a stone tower above a walled Renaissance town holds up a lantern beside a bronze signal bell; torches flicker through the streets below; moonlit hills beyond"
   revision: 1
-  alt: A night watchman with a lantern and a bell in a tower above a walled town.
+  alt: "A night watchman with a lantern and a bell in a tower above a walled town."
+  focus: right
+  layers:
+    - { id: plate, depth: 0, transparent: false, contains: "the walled town, torches, hills and moonlit sky, with the watchman and bell removed" }
+    - { id: figures, depth: 0.55, transparent: true, contains: "only the watchman, his lantern and the bronze bell" }
+    - { id: foreground, depth: 1, transparent: true, contains: "only the tower parapet stones along the bottom edge" }
 architecture:
   tiers:
     - label: Services

@@ -17,10 +17,15 @@ stack:
   # TODO: language / framework, payment provider
 links:
   live: "TODO: public URL if one exists"
-painting:
-  prompt: Renaissance messengers on horseback and on foot carrying sealed letters with red wax seals between merchants' counting houses across a sunlit piazza, a merchant at a window receiving a letter and handing back a purse of coins
+scene:
+  prompt: "Renaissance messengers on horseback and on foot carrying sealed letters with red wax seals across a sunlit piazza between merchants' counting houses; on the right a merchant leans from an open window to receive a letter and hand back a purse of coins; a campanile and blue hills in the distance"
   revision: 1
-  alt: Renaissance messengers carrying sealed letters between merchants across a sunlit piazza.
+  alt: "Renaissance messengers carrying sealed letters across a sunlit piazza between merchants' houses."
+  focus: center
+  layers:
+    - { id: plate, depth: 0, transparent: false, contains: "the empty piazza, buildings, campanile, hills and sky, with every person and horse removed" }
+    - { id: figures, depth: 0.55, transparent: true, contains: "only the messengers, their horses and the merchant at the window" }
+    - { id: foreground, depth: 1, transparent: true, contains: "only the stone balustrade and the scattered letters along the bottom edge" }
 architecture:
   # TODO: replace with the real architecture once you supply the services
   tiers:

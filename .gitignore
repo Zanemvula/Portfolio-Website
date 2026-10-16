@@ -23,3 +23,8 @@ out/
 Thumbs.db
 .vscode/
 .idea/
+
+# Art inbox (your ChatGPT exports) and local previews — the bucket is the source of truth
+art/
+public/paintings/
+content/paintings.local.json

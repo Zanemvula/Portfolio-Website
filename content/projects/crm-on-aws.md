@@ -14,10 +14,15 @@ stack:
   - AWS
   # TODO: AWS services, IaC tool, CI/CD system
 links: {}
-painting:
-  prompt: A Renaissance archive of patrons' correspondence, a wall of wooden pigeonholes filled with folded letters, a clerk entering a new patron's name into a great bound register, and through the window masons using a wooden crane to raise a stone into a new wing of the building
+scene:
+  prompt: "An archive of patrons' correspondence: a wall of wooden pigeonholes filled with folded letters, a clerk entering a new patron into a great bound register; through a large window on the right, masons raise a stone into a new wing with a wooden crane"
   revision: 1
-  alt: A clerk recording a new patron in a great register while masons raise a stone into a new wing outside.
+  alt: "A clerk recording a new patron in a great register while masons raise a stone into a new wing outside."
+  focus: left
+  layers:
+    - { id: plate, depth: 0, transparent: false, contains: "the archive room, the pigeonholes and the view through the window including the crane and masons, with the clerk removed" }
+    - { id: figures, depth: 0.55, transparent: true, contains: "only the clerk at the desk" }
+    - { id: foreground, depth: 1, transparent: true, contains: "only the open register, inkwell and quills along the bottom edge" }
 architecture:
   # TODO: services, IaC and CI details
   tiers:

@@ -1,6 +1,8 @@
 import { z } from 'astro/zod';
 import siteJson from '../../content/site.json';
 import paintingsJson from '../../content/paintings.json';
+import editionJson from '../../content/edition.json';
+import { scene } from './scene-schema';
 
 /** A content value is a TODO when it is a string starting with "TODO". */
 export const isTodo = (value: unknown): boolean => typeof value === 'string' && value.trim().startsWith('TODO');
@@ -45,6 +47,10 @@ const siteSchema = z.object({
 });
 
 export const site = siteSchema.parse(siteJson);
+
+export const edition = z
+  .object({ name: z.string(), volume: z.string(), intro: z.string(), hero: scene, finale: scene })
+  .parse(editionJson);
 
 export const whatsappUrl = (message = site.contact.whatsappMessage) =>
   `https://wa.me/${site.contact.whatsapp}?text=${encodeURIComponent(message)}`;
@@ -91,48 +97,72 @@ export const STATUS_LABELS = {
   todo: '',
 } as const;
 
-/* ---------- Paintings (generated, hosted in GCS) ---------- */
+/* ---------- Scenes (painted art, hosted in GCS) ---------- */
 
-const manifestSchema = z.record(
-  z.string(),
-  z.object({
-    revision: z.number().int().positive(),
-    width: z.number().int().positive(),
-    height: z.number().int().positive(),
-    widths: z.array(z.number().int().positive()).min(1),
-  }),
-);
-const manifest = manifestSchema.parse(paintingsJson);
+const manifestEntry = z.object({
+  revision: z.number().int().positive(),
+  width: z.number().int().positive(),
+  height: z.number().int().positive(),
+  widths: z.array(z.number().int().positive()).min(1),
+  /** Layer ids that were published; "full" is the whole painting. */
+  layers: z.array(z.string()).min(1),
+  /** Whether a 1200×630 share card was published. */
+  og: z.boolean().default(false),
+});
+const manifestSchema = z.record(z.string(), manifestEntry);
 
-/** True once at least one painting is published (drives the GCS preconnect). */
-export const hasPaintings = Object.keys(manifest).length > 0;
+/**
+ * content/paintings.json lists art published to Cloud Storage. When
+ * `npm run art:process` has run locally, content/paintings.local.json lists art
+ * written to public/paintings/ and served same-origin; it is gitignored and
+ * wins, so local previews never touch the bucket.
+ */
+const localManifests = import.meta.glob<{ default: unknown }>('../../content/paintings.local.json', { eager: true });
+const remote = manifestSchema.parse(paintingsJson);
+const local = manifestSchema.parse(Object.values(localManifests)[0]?.default ?? {});
 
-export interface PaintingSources {
+type Entry = z.infer<typeof manifestEntry> & { base: string };
+const entries: Record<string, Entry> = {
+  ...Object.fromEntries(Object.entries(remote).map(([k, v]) => [k, { ...v, base: `${site.assetsBase}/paintings` }])),
+  ...Object.fromEntries(Object.entries(local).map(([k, v]) => [k, { ...v, base: '/paintings' }])),
+};
+
+/** True once any art is published to the bucket (drives the GCS preconnect). */
+export const hasRemoteArt = Object.keys(remote).some((k) => !(k in local));
+
+export interface LayerSources {
+  id: string;
   avif: string;
   webp: string;
   src: string;
+}
+
+export interface SceneSources {
   width: number;
   height: number;
-  og: string;
+  /** Back to front. Either the cut layers, or just ["full"]. */
+  layers: LayerSources[];
+  og?: string;
 }
 
 /**
- * Responsive sources for a painting, or undefined while it has not been
- * generated yet (the frame then shows an unpainted canvas).
- * Key is "<slug>" for projects and "craft-<id>" for crafts.
+ * Responsive sources for a scene, or undefined while it has not been painted
+ * (the scene then shows its sinopia under-drawing). Keys: project slug,
+ * "craft-<id>", "hero", "finale".
+ * `order` is the layer order from the content file; layers not yet published are skipped.
  */
-export const paintingSources = (key: string): PaintingSources | undefined => {
-  const entry = manifest[key];
-  if (!entry) return undefined;
-  const base = `${site.assetsBase}/paintings/${key}-r${entry.revision}`;
-  const set = (ext: string) => entry.widths.map((w) => `${base}-${w}.${ext} ${w}w`).join(', ');
-  const largest = Math.max(...entry.widths);
-  return {
-    avif: set('avif'),
-    webp: set('webp'),
-    src: `${base}-${largest}.webp`,
-    width: entry.width,
-    height: entry.height,
-    og: `${base}-og.jpg`,
-  };
+export const sceneSources = (key: string, order: string[] = []): SceneSources | undefined => {
+  const e = entries[key];
+  if (!e) return undefined;
+  const prefix = `${e.base}/${key}-r${e.revision}`;
+  const cut = order.filter((id) => e.layers.includes(id));
+  const ids = cut.length > 0 ? cut : e.layers.includes('full') ? ['full'] : e.layers.slice(0, 1);
+  const largest = Math.max(...e.widths);
+  const layers = ids.map((id) => {
+    const set = (ext: string) => e.widths.map((w) => `${prefix}-${id}-${w}.${ext} ${w}w`).join(', ');
+    return { id, avif: set('avif'), webp: set('webp'), src: `${prefix}-${id}-${largest}.webp` };
+  });
+  const ogPath = `${prefix}-og.jpg`;
+  const og = e.og ? (ogPath.startsWith('http') ? ogPath : new URL(ogPath, site.url).href) : undefined;
+  return { width: e.width, height: e.height, layers, og };
 };

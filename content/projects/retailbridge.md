@@ -14,10 +14,15 @@ stack:
   - RFID
   # TODO: stack
 links: {}
-painting:
-  prompt: A broad stone bridge over a river crowded with porters carrying countless small bundles, each tied with a coloured cord and wax tag, from a great warehouse on one bank to a bustling market on the other, evening light
+scene:
+  prompt: "A broad stone bridge over a river at evening, crowded with porters carrying countless small bundles tied with coloured cords and wax tags from a great warehouse on the left bank to a bustling market on the right bank"
   revision: 1
-  alt: Porters carrying thousands of tagged bundles across a stone bridge from a warehouse to a market.
+  alt: "Porters carrying thousands of tagged bundles across a stone bridge from a warehouse to a market."
+  focus: center
+  layers:
+    - { id: plate, depth: 0, transparent: false, contains: "the river, the empty bridge, the warehouse, the market and the evening sky, with every porter removed" }
+    - { id: figures, depth: 0.55, transparent: true, contains: "only the porters and their bundles" }
+    - { id: foreground, depth: 1, transparent: true, contains: "only the riverside reeds and the moored boat along the bottom edge" }
 architecture:
   # TODO: real components
   tiers:

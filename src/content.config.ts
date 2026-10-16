@@ -1,6 +1,7 @@
 import { defineCollection } from 'astro:content';
 import { glob, file } from 'astro/loaders';
 import { z } from 'astro/zod';
+import { scene } from './lib/scene-schema';
 
 /**
  * Content conventions
@@ -38,7 +39,7 @@ const projects = defineCollection({
     summary: z.string().max(200),
     year: todoOr(z.string().regex(/^\d{4}(–(\d{4}|present))?$/)),
     status: z.enum(['live', 'in-progress', 'paused', 'archived', 'todo']),
-    /** Hanging order in the Hall of Works (1 = first). */
+    /** Chapter order in the Edition (1 = first). */
     order: z.number().int().positive(),
     draft: z.boolean().default(false),
     /** Employer-owned system: architecture and role only, no code or data. */
@@ -56,13 +57,7 @@ const projects = defineCollection({
         caseStudy: todoOr(z.url()).optional(),
       })
       .default({}),
-    painting: z.object({
-      /** Subject of the painting; the house style prefix is added by the generator. */
-      prompt: z.string().min(20),
-      /** Bump to regenerate. Published files are named <slug>-r<revision>-<width>.<ext>. */
-      revision: z.number().int().positive().default(1),
-      alt: z.string().min(10),
-    }),
+    scene,
     architecture: architecture.optional(),
     /** The Restoration log: append a line whenever the project is improved. */
     log: z.array(z.object({ date: isoDate, note: z.string() })).default([]),
@@ -85,11 +80,7 @@ const crafts = defineCollection({
         }),
       )
       .min(1),
-    painting: z.object({
-      prompt: z.string().min(20),
-      revision: z.number().int().positive().default(1),
-      alt: z.string().min(10),
-    }),
+    scene,
   }),
 });
 

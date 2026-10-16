@@ -1,0 +1,26 @@
+{
+  "name": "The Cloud Edition",
+  "volume": "MMXXVI",
+  "intro": "A working gallery of the systems I build and run. Each one is a painting; step into a painting to see how it was made.",
+  "hero": {
+    "prompt": "A vast vaulted Renaissance gallery at golden hour, its walls hung floor to ceiling with gilded paintings, a long marble floor receding to a bright arched window; in the middle distance an anonymous draughtsman, seen from behind, studies plans of aqueducts and towers at a drafting table; dust drifts in shafts of light",
+    "revision": 1,
+    "alt": "A vaulted Renaissance gallery at golden hour with a draughtsman studying plans at a drafting table.",
+    "focus": "center",
+    "layers": [
+      { "id": "plate", "depth": 0, "transparent": false, "contains": "the empty gallery, its paintings, floor and window, with the draughtsman and the drafting table removed" },
+      { "id": "figures", "depth": 0.5, "contains": "only the draughtsman and the drafting table with its plans" },
+      { "id": "foreground", "depth": 1, "contains": "only the nearest column edges and the hanging drapery at the left and right edges" }
+    ]
+  },
+  "finale": {
+    "prompt": "A Renaissance patron's study at dusk: a writing desk with an unsealed letter, a quill and a stick of red sealing wax; a tall window open to a city of domes and towers under a violet sky; an empty carved chair waiting at the desk",
+    "revision": 1,
+    "alt": "A patron's study at dusk with an unsealed letter on the desk and a window onto a city of domes.",
+    "focus": "center",
+    "layers": [
+      { "id": "plate", "depth": 0, "transparent": false, "contains": "the study and the view through the window, with the desk, chair and letter removed" },
+      { "id": "foreground", "depth": 1, "contains": "only the desk, the chair, the letter, the quill and the sealing wax" }
+    ]
+  }
+}
