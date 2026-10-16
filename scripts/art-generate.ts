@@ -19,6 +19,8 @@ import { INBOX, SIZE, args, layerPrompt, loadScenes, masterPrompt } from './lib/
 const MODEL = process.env.PAINTING_MODEL || 'gpt-image-1';
 const { keys, has } = args();
 if (existsSync('.env')) process.loadEnvFile('.env');
+// Accept the key under either spelling.
+process.env.OPENAI_API_KEY ||= process.env.OPEN_AI_API_KEY;
 
 const scenes = loadScenes().filter((s) => keys.length === 0 || keys.includes(s.key));
 const unknown = keys.filter((k) => !scenes.some((s) => s.key === k));
