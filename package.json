@@ -14,6 +14,7 @@
     "typecheck": "astro check && tsc --noEmit",
     "lint": "eslint .",
     "new-project": "tsx scripts/new-project.ts",
+    "todos": "tsx scripts/todos.ts",
     "paintings:generate": "tsx scripts/generate-paintings.ts",
     "paintings:process": "tsx scripts/process-paintings.ts",
     "lhci": "lhci autorun"

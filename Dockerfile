@@ -1,16 +1,10 @@
-# syntax=docker/dockerfile:1.7
-
 # ---- Build: Astro static site ----
 # Base images come from mirror.gcr.io (Google's Docker Hub mirror) to avoid anonymous pull limits.
 FROM mirror.gcr.io/library/node:22.23.3-alpine AS build
 WORKDIR /app
 ENV ASTRO_TELEMETRY_DISABLED=1
 COPY package.json package-lock.json ./
-# Optional extra CA bundle for builds behind a TLS-inspecting proxy:
-#   docker build --secret id=ca,src=/path/to/ca.crt .
-RUN --mount=type=secret,id=ca,required=false \
-    if [ -f /run/secrets/ca ]; then export NODE_EXTRA_CA_CERTS=/run/secrets/ca; fi \
- && npm ci --no-audit --no-fund
+RUN npm ci --no-audit --no-fund
 COPY . .
 RUN npm run build
 
