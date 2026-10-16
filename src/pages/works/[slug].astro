@@ -2,13 +2,11 @@
 import type { GetStaticPaths } from 'astro';
 import { render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
-import Frame from '../../components/Frame.astro';
-import Painting from '../../components/Painting.astro';
-import Plaque from '../../components/Plaque.astro';
+import Scene from '../../components/edition/Scene.astro';
 import ArchitectureDiagram from '../../components/ArchitectureDiagram.astro';
 import Icon from '../../components/Icon.astro';
 import { getWorks } from '../../lib/content';
-import { known, isTodo, roman, formatMonth, paintingSources, CLOUD_LABELS, STATUS_LABELS } from '../../lib/site';
+import { known, isTodo, roman, formatMonth, sceneSources, CLOUD_LABELS, STATUS_LABELS } from '../../lib/site';
 
 export const getStaticPaths = (async () => {
   const works = await getWorks();
@@ -33,25 +31,23 @@ const links = [
   known(d.links.caseStudy) && { href: known(d.links.caseStudy)!, label: 'Read the case study', icon: 'scroll' as const },
 ].filter((l): l is { href: string; label: string; icon: 'external' | 'github' | 'scroll' } => Boolean(l));
 const log = [...d.log].sort((a, b) => b.date.localeCompare(a.date));
-const og = paintingSources(work.id)?.og;
+const og = sceneSources(work.id)?.og;
 ---
 
-<Base title={d.title} description={d.summary} image={og} imageAlt={d.painting.alt} type="article" lightHeader>
-  <article class="room">
-    <div class="wrap room__grid">
-      <div class="room__painting on-dark">
-        <Frame>
-          <Painting id={work.id} alt={d.painting.alt} priority sizes="(min-width: 60rem) 26rem, 90vw" />
-        </Frame>
-        <Plaque no={roman(d.order)} title={d.title} meta={[[year, d.clouds.map((c) => CLOUD_LABELS[c]).join(' · ')].filter(Boolean).join(' — ')]} headingLevel="p" />
-      </div>
-
+<Base title={d.title} description={d.summary} image={og} imageAlt={d.scene.alt} type="article">
+  <header class="room-hero on-dark">
+    <Scene id={work.id} scene={d.scene} priority sizes="100vw" />
+    <div class="chapter__veil" aria-hidden="true"></div>
+    <div class="room-hero__copy">
+      <a class="room__back" href={`/#chapter-${work.id}`}>← Return to the gallery</a>
+      <p class="eyebrow">Chapter {roman(d.order)}{year && ` · ${year}`}{d.clouds.length > 0 && ` · ${d.clouds.map((c) => CLOUD_LABELS[c]).join(' · ')}`}</p>
+      <h1>{d.title}</h1>
+      <p class="room__summary">{d.summary}</p>
+    </div>
+  </header>
+  <article class="room brushed-top">
+    <div class="wrap room__body">
       <div>
-        <a class="room__back" href="/#works">← Return to the hall</a>
-        <p class="eyebrow">Catalogue no. {roman(d.order)}</p>
-        <h1>{d.title}</h1>
-        <p class="room__summary">{d.summary}</p>
-
         <dl class="room__facts">
           {
             role && (
@@ -195,5 +191,6 @@ const og = paintingSources(work.id)?.og;
 </Base>
 
 <script>
+  import '../../scripts/gallery-motion';
   import '../../scripts/painting-transition';
 </script>

@@ -375,3 +375,17 @@ a:hover {
     display: none;
   }
 }
+
+/* Lenis smooth scroll (desktop, fine pointer only) */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}

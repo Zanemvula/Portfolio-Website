@@ -1,7 +1,8 @@
 ---
 import Icon, { type IconName } from './Icon.astro';
 import ContactForm from './ContactForm.astro';
-import { site, whatsappUrl, mailtoUrl, known } from '../lib/site';
+import Scene from './edition/Scene.astro';
+import { site, edition, whatsappUrl, mailtoUrl, known } from '../lib/site';
 
 const booking = known(site.contact.booking);
 const cv = known(site.cv);
@@ -15,8 +16,12 @@ const channels: { icon: IconName; title: string; detail: string; href: string; e
 ];
 ---
 
-<section class="patronage on-dark" id="patronage" aria-labelledby="patronage-title">
-  <div class="wrap">
+<section class="patronage on-dark" id="patronage" aria-labelledby="patronage-title" data-finale>
+  <div class="patronage__scene" aria-hidden="true">
+    <Scene id="finale" scene={edition.finale} class="finale__scene" />
+    <div class="patronage__veil"></div>
+  </div>
+  <div class="wrap patronage__inner">
     <div class="section-head">
       <p class="eyebrow">Patronage</p>
       <h2 id="patronage-title">Commission the next work</h2>

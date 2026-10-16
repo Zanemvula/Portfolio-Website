@@ -90,3 +90,43 @@ mkdirSync('public', { recursive: true });
 await sharp(Buffer.from(og)).jpeg({ quality: 86, mozjpeg: true }).toFile('public/og-default.jpg');
 await sharp(Buffer.from(readFileSync('public/favicon.svg'))).resize(180, 180).png().toFile('public/apple-touch-icon.png');
 console.log('wrote public/og-default.jpg and public/apple-touch-icon.png');
+
+/* ---- Brushstroke masks (alpha = paint) ---- */
+let seed = 20261016;
+const rand = () => ((seed = (seed * 1664525 + 1013904223) % 4294967296) / 4294967296);
+
+// Wipe: left third painted, right third bare, a dragged-bristle edge between.
+{
+  const strokes = [];
+  for (let y = -10; y < 610; y += 5) {
+    const len = 60 + rand() * 480; // tips stay inside the middle third (≤ x=1140 + displacement)
+    const w = 3 + rand() * 12;
+    strokes.push(`<line x1="560" y1="${y.toFixed(1)}" x2="${(600 + len).toFixed(1)}" y2="${(y + (rand() - 0.5) * 14).toFixed(1)}" stroke-width="${w.toFixed(1)}"/>`);
+  }
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="600" viewBox="0 0 1800 600">
+    <defs><filter id="r" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency="0.015 0.3" numOctaves="3" seed="7"/><feDisplacementMap in="SourceGraphic" scale="34"/></filter></defs>
+    <g filter="url(#r)" fill="#fff" stroke="#fff" stroke-linecap="round"><rect x="-60" y="-60" width="680" height="720"/>${strokes.join('')}</g><rect x="0" y="0" width="560" height="600" fill="#fff"/></svg>`;
+  await sharp(Buffer.from(svg)).webp({ quality: 70, alphaQuality: 60, effort: 6 }).toFile('public/brush-wipe.webp');
+}
+
+// Edge: a dry-brushed top edge for parchment sections laid over paintings.
+{
+  const strokes = [];
+  for (let y = 14; y < 72; y += 2.5) {
+    // Denser, longer strokes further down so the paint thickens into the solid band.
+    const density = (y - 14) / 58;
+    for (let x = -40; x < 1640; ) {
+      const len = 20 + rand() * 220 * (0.4 + density);
+      if (rand() < 0.35 + density * 0.6) {
+        strokes.push(`<line x1="${x.toFixed(1)}" y1="${y.toFixed(1)}" x2="${(x + len).toFixed(1)}" y2="${(y + (rand() - 0.5) * 3).toFixed(1)}" stroke-width="${(1.5 + rand() * 3.5).toFixed(1)}"/>`);
+      }
+      x += len * (0.6 + rand() * 0.9);
+    }
+  }
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="96" viewBox="0 0 1600 96">
+    <defs><filter id="r"><feTurbulence type="fractalNoise" baseFrequency="0.02 0.5" numOctaves="2" seed="3"/><feDisplacementMap in="SourceGraphic" scale="6"/></filter></defs>
+    <g filter="url(#r)" fill="#fff" stroke="#fff" stroke-linecap="round"><rect x="-20" y="60" width="1640" height="60"/>${strokes.join('')}</g>
+    <rect x="0" y="72" width="1600" height="24" fill="#fff"/></svg>`;
+  await sharp(Buffer.from(svg)).webp({ quality: 70, alphaQuality: 60, effort: 6 }).toFile('public/brush-edge.webp');
+}
+console.log('wrote public/brush-wipe.webp and public/brush-edge.webp');

@@ -1,7 +1,7 @@
 ---
 import type { CollectionEntry } from 'astro:content';
 import Frame from './Frame.astro';
-import Painting from './Painting.astro';
+import Scene from './edition/Scene.astro';
 
 interface Props {
   crafts: CollectionEntry<'crafts'>[];
@@ -9,10 +9,10 @@ interface Props {
 const { crafts } = Astro.props;
 ---
 
-<section class="crafts" id="crafts" aria-labelledby="crafts-title">
+<section class="crafts brushed-top" id="crafts" aria-labelledby="crafts-title">
   <div class="wrap">
     <div class="section-head">
-      <p class="eyebrow">Gallery II</p>
+      <p class="eyebrow">The Workshop</p>
       <h2 id="crafts-title">The Hall of Crafts</h2>
       <p>The disciplines behind the works. Marks show where I am still in apprenticeship.</p>
     </div>
@@ -21,7 +21,7 @@ const { crafts } = Astro.props;
         crafts.map((c) => (
           <li class="craft" data-reveal>
             <Frame shape="tondo">
-              <Painting id={`craft-${c.id}`} alt={c.data.painting.alt} square sizes="14rem" />
+              <Scene id={`craft-${c.id}`} scene={c.data.scene} sizes="14rem" />
             </Frame>
             <h3>{c.data.title}</h3>
             <p class="craft__blurb">{c.data.blurb}</p>

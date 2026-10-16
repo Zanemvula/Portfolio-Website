@@ -1,0 +1,50 @@
+---
+/** Shared SVG symbols for the sinopia placeholder (red-ochre under-drawing). */
+const VP = { x: 768, y: 600 };
+const floor = Array.from({ length: 13 }, (_, i) => -432 + i * 200);
+const figure = (x: number, s = 1) => {
+  const h = 290 * s;
+  const top = 760 - h;
+  return {
+    head: { cx: x, cy: top + 22 * s, r: 22 * s },
+    body: `M${x - 14 * s} ${top + 46 * s} Q${x - 72 * s} ${top + h * 0.45} ${x - 62 * s} 760 H${x + 62 * s} Q${x + 72 * s} ${top + h * 0.45} ${x + 14 * s} ${top + 46 * s} Z`,
+    arm: `M${x - 30 * s} ${top + 90 * s} Q${x + 10 * s} ${top + 140 * s} ${x + 70 * s} ${top + 120 * s}`,
+  };
+};
+const figures = [figure(590, 0.92), figure(770, 1.05), figure(960, 0.88)];
+---
+
+<svg width="0" height="0" class="visually-hidden" aria-hidden="true" focusable="false">
+  <symbol id="sinopia-architecture" viewBox="0 0 1536 1024">
+    <g fill="none" stroke="#a4472c" stroke-linecap="round" stroke-linejoin="round">
+      <g stroke-opacity="0.18" stroke-width="1">
+        {Array.from({ length: 9 }, (_, i) => <path d={`M${i * 192} 0V1024`} />)}
+        {Array.from({ length: 6 }, (_, i) => <path d={`M0 ${i * 205}H1536`} />)}
+      </g>
+      <g stroke-opacity="0.55" stroke-width="2">
+        <path d="M0 640H1536" />
+        {floor.map((x) => <path d={`M${VP.x} ${VP.y}L${x} 1024`} />)}
+        <path d="M120 700H1416M60 780H1476M0 880H1536" stroke-opacity="0.35" />
+        <path d="M368 1024V400A400 400 0 0 1 1168 400V1024" stroke-width="5" />
+        <path d="M418 1024V410A350 350 0 0 1 1118 410V1024" stroke-width="2.5" />
+        <path d="M180 1024V160M240 1024V160M1296 1024V160M1356 1024V160" stroke-width="3" />
+        <path d="M150 160H270M1266 160H1386M150 130H270M1266 130H1386" stroke-width="2" />
+        <path d="M418 600Q540 520 650 585T900 560T1118 595" stroke-width="2.5" />
+        <path d="M640 300a128 128 0 0 1 256 0" stroke-opacity="0.4" />
+      </g>
+    </g>
+  </symbol>
+  <symbol id="sinopia-figures" viewBox="0 0 1536 1024">
+    <g fill="rgb(164 71 44 / 0.08)" stroke="#8f3a22" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.75">
+      {
+        figures.map((f) => (
+          <g>
+            <circle cx={f.head.cx} cy={f.head.cy} r={f.head.r} />
+            <path d={f.body} />
+            <path d={f.arm} fill="none" />
+          </g>
+        ))
+      }
+    </g>
+  </symbol>
+</svg>

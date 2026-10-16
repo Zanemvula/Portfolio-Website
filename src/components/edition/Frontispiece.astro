@@ -1,0 +1,52 @@
+---
+/**
+ * The opening: a single framed painting on the gallery wall. Scrolling flies
+ * the camera through the frame into the painting (gallery-motion.ts).
+ * Without motion it is a still frontispiece.
+ */
+import Frame from '../Frame.astro';
+import Scene from './Scene.astro';
+import Icon from '../Icon.astro';
+import { site, edition, whatsappUrl, known } from '../../lib/site';
+const booking = known(site.contact.booking);
+const [role, clouds] = site.headline.split(' — ');
+---
+
+<section class="frontis on-dark" aria-labelledby="frontis-title" data-frontis>
+  <div class="frontis__stage" data-frontis-stage>
+    <div class="frontis__wall" aria-hidden="true"></div>
+    <div class="frontis__frame" data-frontis-frame>
+      <Frame class="frontis__gilt">
+        <Scene id="hero" scene={edition.hero} priority sizes="(min-width: 64rem) 70vw, 100vw" class="frontis__scene" />
+      </Frame>
+    </div>
+    <header class="frontis__title" data-frontis-title>
+      <p class="frontis__edition">{edition.name} · {edition.volume}</p>
+      <h1 id="frontis-title">
+        <span class="frontis__the">The Gallery of</span>
+        <span class="frontis__name">{site.name}</span>
+      </h1>
+      <p class="frontis__role">
+        <span>{role}</span>
+        {clouds && <span class="frontis__clouds"><span class="visually-hidden"> — </span>{clouds}</span>}
+      </p>
+    </header>
+    <div class="frontis__intro" data-frontis-intro>
+      <p class="frontis__value">{site.valueStatement}</p>
+      <div class="cta-row">
+        {
+          booking && (
+            <a class="btn btn--gilt" href={booking} rel="noopener" target="_blank">
+              <Icon name="calendar" /> Book a call
+            </a>
+          )
+        }
+        <a class="btn btn--ghost" href={whatsappUrl()} rel="noopener" target="_blank">
+          <Icon name="whatsapp" /> WhatsApp
+        </a>
+        <a class="btn btn--ghost" href="#contents">View work <Icon name="arrow" /></a>
+      </div>
+    </div>
+    <a class="frontis__cue" href="#contents" data-frontis-cue><span>Scroll to enter the painting</span></a>
+  </div>
+</section>

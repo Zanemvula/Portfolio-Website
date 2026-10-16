@@ -8,9 +8,11 @@ import '@fontsource-variable/inter/wght.css';
 import '../styles/tokens.css';
 import '../styles/base.css';
 import '../styles/gallery.css';
+import '../styles/edition.css';
 import displayFont from '@fontsource/cormorant-garamond/files/cormorant-garamond-latin-500-normal.woff2?url';
 import Icon from '../components/Icon.astro';
-import { site, whatsappUrl, known, hasPaintings } from '../lib/site';
+import Sinopia from '../components/edition/Sinopia.astro';
+import { site, whatsappUrl, known, hasRemoteArt } from '../lib/site';
 
 interface Props {
   title?: string;
@@ -27,13 +29,15 @@ interface Props {
 const {
   title,
   description = site.description,
-  image = new URL('/og-default.jpg', site.url).href,
-  imageAlt = 'The Gallery of Ntsika Gqiba — a gilded frame on an oxblood gallery wall.',
+  image: imageProp,
+  imageAlt: imageAltProp,
   type = 'website',
   lightHeader = false,
   noindex = false,
 } = Astro.props;
 
+const image = imageProp ?? new URL('/og-default.jpg', site.url).href;
+const imageAlt = imageAltProp ?? 'The Gallery of Ntsika Gqiba — a gilded frame on an oxblood gallery wall.';
 const fullTitle = title ? `${title} · ${site.name}` : `The Gallery of ${site.name} — ${site.role}`;
 const canonical = new URL(Astro.url.pathname, site.url).href;
 const cv = known(site.cv);
@@ -69,7 +73,7 @@ const person = {
     <link rel="sitemap" href="/sitemap-index.xml" />
     <link rel="preload" href={displayFont} as="font" type="font/woff2" crossorigin />
     <!-- Paintings load as no-cors images, so this preconnect must not be crossorigin. -->
-    {hasPaintings && <link rel="preconnect" href="https://storage.googleapis.com" />}
+    {hasRemoteArt && <link rel="preconnect" href="https://storage.googleapis.com" />}
 
     <meta property="og:type" content={type} />
     <meta property="og:site_name" content={`The Gallery of ${site.name}`} />
@@ -103,6 +107,8 @@ const person = {
         <path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" d="M30 10.5c3-5 10-5 11 0 .6 3-2.6 4.6-4.4 3M10.5 30c-5 3-5 10 0 11 3 .6 4.6-2.6 3-4.4" />
       </symbol>
     </svg>
+
+    <Sinopia />
 
     <header class:list={['masthead', lightHeader && 'masthead--light']}>
       <div class="wrap masthead__inner">
