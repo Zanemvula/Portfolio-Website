@@ -10,7 +10,7 @@ import '../styles/base.css';
 import '../styles/gallery.css';
 import displayFont from '@fontsource/cormorant-garamond/files/cormorant-garamond-latin-500-normal.woff2?url';
 import Icon from '../components/Icon.astro';
-import { site, whatsappUrl, known } from '../lib/site';
+import { site, whatsappUrl, known, hasPaintings } from '../lib/site';
 
 interface Props {
   title?: string;
@@ -68,7 +68,8 @@ const person = {
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="sitemap" href="/sitemap-index.xml" />
     <link rel="preload" href={displayFont} as="font" type="font/woff2" crossorigin />
-    <link rel="preconnect" href="https://storage.googleapis.com" crossorigin />
+    <!-- Paintings load as no-cors images, so this preconnect must not be crossorigin. -->
+    {hasPaintings && <link rel="preconnect" href="https://storage.googleapis.com" />}
 
     <meta property="og:type" content={type} />
     <meta property="og:site_name" content={`The Gallery of ${site.name}`} />

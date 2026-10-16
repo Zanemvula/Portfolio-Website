@@ -104,6 +104,9 @@ const manifestSchema = z.record(
 );
 const manifest = manifestSchema.parse(paintingsJson);
 
+/** True once at least one painting is published (drives the GCS preconnect). */
+export const hasPaintings = Object.keys(manifest).length > 0;
+
 export interface PaintingSources {
   avif: string;
   webp: string;
