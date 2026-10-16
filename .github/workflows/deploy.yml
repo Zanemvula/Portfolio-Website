@@ -1,0 +1,91 @@
+name: Deploy
+
+# Deploys every push to main. While the rebuild lives on v2-gallery, pushes
+# there deploy too, so the skeleton is live from day one — remove v2-gallery
+# from this list when it is merged.
+on:
+  push:
+    branches: [main, v2-gallery]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+env:
+  REGION: europe-west1
+  SERVICE: portfolio
+  REPOSITORY: portfolio
+
+jobs:
+  verify:
+    uses: ./.github/workflows/ci.yml
+
+  deploy:
+    name: Build, push and deploy to Cloud Run
+    needs: verify
+    # Skips cleanly until the GCP bootstrap in DEPLOY.md has set the repo variables.
+    if: ${{ vars.WIF_PROVIDER != '' && vars.WIF_SA != '' && vars.GCP_PROJECT_ID != '' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    environment:
+      name: production
+      url: ${{ steps.deploy.outputs.url }}
+    env:
+      IMAGE: europe-west1-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/portfolio/portfolio:${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Authenticate to Google Cloud (Workload Identity Federation — no keys)
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ vars.WIF_PROVIDER }}
+          service_account: ${{ vars.WIF_SA }}
+
+      - uses: google-github-actions/setup-gcloud@v3
+
+      - run: gcloud auth configure-docker "${REGION}-docker.pkg.dev" --quiet
+
+      - uses: docker/setup-buildx-action@v4
+
+      - name: Build and push the image (tagged with the commit SHA)
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          push: true
+          tags: ${{ env.IMAGE }}
+          cache-from: type=gha
+          provenance: false
+
+      - name: Deploy
+        id: deploy
+        run: |
+          extra=()
+          if [ -n "${{ vars.RUN_SA }}" ]; then extra+=(--service-account "${{ vars.RUN_SA }}"); fi
+          gcloud run deploy "$SERVICE" \
+            --image "$IMAGE" \
+            --region "$REGION" \
+            --platform managed \
+            --allow-unauthenticated \
+            --port 8080 \
+            --min-instances 0 \
+            --max-instances 2 \
+            --memory 256Mi \
+            --cpu 1 \
+            --concurrency 80 \
+            --cpu-boost \
+            --labels "app=portfolio,commit=${GITHUB_SHA::12}" \
+            "${extra[@]}" \
+            --quiet
+          url=$(gcloud run services describe "$SERVICE" --region "$REGION" --format='value(status.url)')
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+
+      - name: Smoke test
+        run: |
+          curl -fsS "${{ steps.deploy.outputs.url }}/healthz"
+          curl -fsS -o /dev/null -w "GET / → %{http_code} in %{time_total}s\n" "${{ steps.deploy.outputs.url }}/"
