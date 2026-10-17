@@ -116,7 +116,7 @@ Save as `art/chatly/foreground.png`.
 
 ## 3. Comfy Shoes e-commerce
 
-Folder `art/comfy-shoes/` · 1536×1024 (3:2 landscape) · revision 1 · 🟡 in art/ (full, plate) — run `npm run art:process`
+Folder `art/comfy-shoes/` · 1536×1024 (3:2 landscape) · revision 1 · ✅ published (r1: full, plate, figures)
 
 _A Renaissance cobbler's workshop with shelves of leather shoes opening onto a sunlit arcade._
 
