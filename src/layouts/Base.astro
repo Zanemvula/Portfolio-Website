@@ -10,9 +10,8 @@ import '../styles/base.css';
 import '../styles/gallery.css';
 import '../styles/edition.css';
 import displayFont from '@fontsource/cormorant-garamond/files/cormorant-garamond-latin-500-normal.woff2?url';
-import Icon from '../components/Icon.astro';
 import Sinopia from '../components/edition/Sinopia.astro';
-import { site, whatsappUrl, known, hasRemoteArt } from '../lib/site';
+import { site, known, hasRemoteArt } from '../lib/site';
 
 interface Props {
   title?: string;
@@ -144,9 +143,5 @@ const person = {
         </p>
       </div>
     </footer>
-
-    <a class="wa-fab" href={whatsappUrl()} aria-label="Message Ntsika on WhatsApp" rel="noopener" target="_blank">
-      <Icon name="whatsapp" />
-    </a>
   </body>
 </html>

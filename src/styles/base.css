@@ -306,40 +306,6 @@ a:hover {
   margin: 0;
 }
 
-/* Floating WhatsApp */
-.wa-fab {
-  position: fixed;
-  right: max(1rem, env(safe-area-inset-right));
-  bottom: max(1rem, env(safe-area-inset-bottom));
-  z-index: 50;
-  display: grid;
-  place-items: center;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  color: #fff;
-  background: #1f7a4d;
-  border: 2px solid var(--gold-leaf);
-  box-shadow:
-    0 10px 24px -8px rgb(0 0 0 / 0.55),
-    inset 0 0 0 2px rgb(255 255 255 / 0.12);
-  transition: transform var(--dur) var(--ease-gallery);
-}
-
-.wa-fab:hover {
-  transform: translateY(-2px) scale(1.04);
-}
-
-.wa-fab svg {
-  width: 28px;
-  height: 28px;
-}
-
-.wa-fab:focus-visible {
-  outline-color: var(--gold-hi);
-  outline-offset: 4px;
-}
-
 /* Cross-document view transitions: the clicked painting becomes the room's painting. */
 @view-transition {
   navigation: auto;
