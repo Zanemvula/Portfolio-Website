@@ -162,7 +162,7 @@ Save as `art/comfy-shoes/foreground.png`.
 
 ## 4. ERPNext rollout
 
-Folder `art/erpnext-rollout/` · 1536×1024 (3:2 landscape) · revision 1 · ⬜ not painted yet
+Folder `art/erpnext-rollout/` · 1536×1024 (3:2 landscape) · revision 1 · ✅ published (r1: full, plate, figures)
 
 _Stewards from several houses bringing their ledgers to one master ledger in a vaulted hall._
 
