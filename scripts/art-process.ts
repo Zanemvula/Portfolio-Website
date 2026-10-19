@@ -16,7 +16,7 @@ import { existsSync, mkdirSync, readdirSync, copyFileSync, rmSync } from 'node:f
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import sharp from 'sharp';
-import { MIN_CORRELATION, centralCoverage, cutFromMaster, findPlacement, patchBackdrop, placedAlpha } from './lib/align';
+import { MIN_CORRELATION, centralCoverage, cutFromMaster, findPlacement, overlapShare, patchBackdrop, placedAlpha } from './lib/align';
 import { INBOX, OUT, LOCAL_PUBLIC, MANIFEST, LOCAL_MANIFEST, SIZE, WIDTHS, args, loadScenes, readManifest, writeManifest, type SceneItem } from './lib/art';
 
 const BUCKET = process.env.ART_BUCKET ?? 'ntsikagqiba-assets';
@@ -94,6 +94,14 @@ for (const s of scenes) {
       const p = await findPlacement(master, cut, w, h);
       if (p && p.correlation >= MIN_CORRELATION) {
         const alpha = await placedAlpha(cut, p, w, h);
+        // Two layers holding the same pixels would shear apart in parallax; keep the first.
+        let duplicate = 0;
+        for (const m of masks) duplicate = Math.max(duplicate, await overlapShare(alpha, m, w, h));
+        if (duplicate > 0.3) {
+          normalised.delete(layer.id);
+          console.log(`  ${s.key}/${layer.id}: ${Math.round(duplicate * 100)}% already in an earlier cut-out; dropped`);
+          continue;
+        }
         normalised.set(layer.id, await cutFromMaster(master, alpha, w, h));
         masks.push(alpha);
         console.log(`  ${s.key}/${layer.id}: re-seated on the master (scale ${p.scale.toFixed(3)}, match ${p.correlation.toFixed(2)})`);

@@ -80,3 +80,4 @@ Ntsika's verdict on the first build: it "missed the design and feeling of the Sh
 50. **Node's `fetch` ignores `HTTPS_PROXY`.** Inside a proxied cloud session, run the API generator with `NODE_USE_ENV_PROXY=1` (Node ≥ 22.21). GitHub runners and normal machines don't need it.
 51. **First real art (hero + Chatly, gpt-image-1, high quality):** about 70–90 s per image. Lighthouse mobile with it in place: home 95, rooms 95–97, the rest 100; home page 265 KiB in total.
 52. **No floating WhatsApp button** (Ntsika, 2026-10-17: "looks a bit tacky"). It overrides the original brief. WhatsApp stays as a call to action in the frontispiece and as a channel in Patronage.
+53. **A cut-out that duplicates an earlier one is dropped.** If more than 30% of a re-seated layer is already covered by an earlier cut-out, it goes. Two layers holding the same pixels would shear apart in parallax. First seen in CRM on AWS, where the "foreground" ledger was 99% inside the clerk's cut-out.

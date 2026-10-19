@@ -215,3 +215,18 @@ export const centralCoverage = async (cutoutPng: Buffer, W: number, H: number) =
   for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) if (img.data[(y * img.width + x) * 4 + 3]! > 128) opaque++;
   return opaque / ((x1 - x0) * (y1 - y0));
 };
+
+/** Share of mask `a` (single-channel PNG) that is also covered by mask `b`. */
+export const overlapShare = async (a: Buffer, b: Buffer, W: number, H: number) => {
+  const read = async (m: Buffer) => (await sharp(m).resize(Math.round(W / 4), Math.round(H / 4), { fit: 'fill' }).extractChannel(0).raw().toBuffer());
+  const [da, db] = await Promise.all([read(a), read(b)]);
+  let inA = 0;
+  let both = 0;
+  for (let i = 0; i < da.length; i++) {
+    if (da[i]! > 128) {
+      inA++;
+      if (db[i]! > 128) both++;
+    }
+  }
+  return inA ? both / inA : 0;
+};

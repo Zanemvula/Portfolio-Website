@@ -208,7 +208,7 @@ Save as `art/erpnext-rollout/foreground.png`.
 
 ## 5. CRM on AWS
 
-Folder `art/crm-on-aws/` · 1536×1024 (3:2 landscape) · revision 1 · ⬜ not painted yet
+Folder `art/crm-on-aws/` · 1536×1024 (3:2 landscape) · revision 1 · ✅ published (r1: full, plate, figures)
 
 _A clerk recording a new patron in a great register while masons raise a stone into a new wing outside._
 
