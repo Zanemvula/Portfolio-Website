@@ -298,7 +298,7 @@ Save as `art/retailbridge/foreground.png`.
 
 ---
 
-## 7. Self-hosted Sentry on OCI
+## 7. Self-hosted Sentry on OCI (draft)
 
 Folder `art/sentry-on-oci/` · 1536×1024 (3:2 landscape) · revision 1 · ⬜ not painted yet
 

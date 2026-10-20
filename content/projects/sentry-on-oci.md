@@ -4,7 +4,7 @@ summary: Self-hosted error tracking for my production services, running on my Or
 year: "TODO: year"
 status: todo # TODO: live | in-progress
 order: 6
-draft: false
+draft: true # Ntsika, 2026-10-20: not done yet — hidden until it is
 confidential: false
 clouds: [oci]
 problem: "TODO: 2–3 sentences — why self-host error tracking?"
