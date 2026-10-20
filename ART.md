@@ -254,7 +254,7 @@ Save as `art/crm-on-aws/foreground.png`.
 
 ## 6. RetailBridge
 
-Folder `art/retailbridge/` · 1536×1024 (3:2 landscape) · revision 1 · ⬜ not painted yet
+Folder `art/retailbridge/` · 1536×1024 (3:2 landscape) · revision 1 · ✅ published (r1: full)
 
 _Porters carrying thousands of tagged bundles across a stone bridge from a warehouse to a market._
 
