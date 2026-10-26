@@ -230,3 +230,42 @@ export const overlapShare = async (a: Buffer, b: Buffer, W: number, H: number) =
   }
   return inA ? both / inA : 0;
 };
+
+/**
+ * A tondo comes back as a painted disc on a dark ground, not always centred or
+ * touching the edges. The site clips the canvas to a circle, so find the disc:
+ * pixels that differ from the corner (ground) colour, spanning ≥ 4% of a row or column.
+ * Returns the disc's bounding square in full-resolution pixels.
+ */
+export const findDisc = async (png: Buffer) => {
+  const N = 256;
+  const meta = await sharp(png).metadata();
+  const { data } = await sharp(png).resize(N, N, { fit: 'fill' }).removeAlpha().raw().toBuffer({ resolveWithObject: true });
+  const corner: number[][] = [];
+  for (const [cx, cy] of [[0, 0], [N - 10, 0], [0, N - 10], [N - 10, N - 10]] as const)
+    for (let y = cy; y < cy + 10; y++)
+      for (let x = cx; x < cx + 10; x++) {
+        const i = (y * N + x) * 3;
+        corner.push([data[i]!, data[i + 1]!, data[i + 2]!]);
+      }
+  const ground = [0, 1, 2].map((c) => corner.map((p) => p[c]!).sort((a, b) => a - b)[corner.length >> 1]!);
+  const painted = (x: number, y: number) => {
+    const i = (y * N + x) * 3;
+    return Math.abs(data[i]! - ground[0]!) + Math.abs(data[i + 1]! - ground[1]!) + Math.abs(data[i + 2]! - ground[2]!) > 60;
+  };
+  const rows = Array.from({ length: N }, (_, y) => Array.from({ length: N }, (_, x) => painted(x, y)).filter(Boolean).length);
+  const cols = Array.from({ length: N }, (_, x) => Array.from({ length: N }, (_, y) => painted(x, y)).filter(Boolean).length);
+  const span = (a: number[]) => {
+    const t = N * 0.04;
+    const i0 = a.findIndex((n) => n > t);
+    let i1 = N - 1;
+    while (i1 > 0 && a[i1]! <= t) i1--;
+    return [i0, i1 + 1] as const;
+  };
+  const [x0, x1] = span(cols);
+  const [y0, y1] = span(rows);
+  if (x0 < 0 || y0 < 0) return undefined;
+  const sx = meta.width! / N;
+  const sy = meta.height! / N;
+  return { cx: ((x0 + x1) / 2) * sx, cy: ((y0 + y1) / 2) * sy, dx: (x1 - x0) * sx, dy: (y1 - y0) * sy };
+};

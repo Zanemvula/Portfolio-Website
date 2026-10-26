@@ -12,11 +12,11 @@
  * so they are safe to cache forever. The manifest is only updated after files
  * exist where it points.
  */
-import { existsSync, mkdirSync, readdirSync, copyFileSync, rmSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, copyFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import sharp from 'sharp';
-import { MIN_CORRELATION, centralCoverage, cutFromMaster, findPlacement, overlapShare, patchBackdrop, placedAlpha } from './lib/align';
+import { MIN_CORRELATION, centralCoverage, cutFromMaster, findDisc, findPlacement, overlapShare, patchBackdrop, placedAlpha } from './lib/align';
 import { INBOX, OUT, LOCAL_PUBLIC, MANIFEST, LOCAL_MANIFEST, SIZE, WIDTHS, args, loadScenes, readManifest, writeManifest, type SceneItem } from './lib/art';
 
 const BUCKET = process.env.ART_BUCKET ?? 'ntsikagqiba-assets';
@@ -80,10 +80,21 @@ for (const s of scenes) {
   const { w, h } = SIZE[s.format];
   // Normalise every layer to the scene's canvas first, so the stack lines up even if
   // ChatGPT returned a different size (sharp applies only one resize per pipeline).
+  // A tondo is cropped to its painted disc (found on full.png), so the circular frame never shows the ground around it.
+  const disc = s.format === 'square' && present.includes('full') ? await findDisc(readFileSync(join(dir, 'full.png'))) : undefined;
   const normalised = new Map<string, Buffer>();
   for (const id of present) {
-    normalised.set(id, await sharp(join(dir, `${id}.png`)).resize(w, h, { fit: 'cover' }).png().toBuffer());
+    let img = sharp(join(dir, `${id}.png`));
+    if (disc) {
+      const meta = await img.metadata();
+      const side = Math.round(Math.min(disc.dx, disc.dy) * 0.98);
+      const left = Math.max(0, Math.min(meta.width! - side, Math.round(disc.cx - side / 2)));
+      const top = Math.max(0, Math.min(meta.height! - side, Math.round(disc.cy - side / 2)));
+      img = sharp(await img.extract({ left, top, width: Math.min(side, meta.width!), height: Math.min(side, meta.height!) }).png().toBuffer());
+    }
+    normalised.set(id, await img.resize(w, h, { fit: 'cover' }).png().toBuffer());
   }
+  if (disc) console.log(`  ${s.key}: cropped to the painted disc (${Math.round(Math.min(disc.dx, disc.dy))} px across)`);
 
   // Image models redraw cut-outs rather than cutting them; re-seat each one on the master painting.
   const master = normalised.get('full');

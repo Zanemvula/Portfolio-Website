@@ -392,7 +392,7 @@ Save as `art/portfolio/foreground.png`.
 
 ## 9. Craft · Cloud
 
-Folder `art/craft-cloud/` · 1024×1024 (square) · revision 1 · ⬜ not painted yet
+Folder `art/craft-cloud/` · 1024×1024 (square) · revision 1 · ✅ published (r1: full)
 
 _Tondo of an armillary sphere beneath three luminous clouds over terracotta rooftops._
 
@@ -414,7 +414,7 @@ Save the result as `art/craft-cloud/full.png`.
 
 ## 10. Craft · Systems
 
-Folder `art/craft-systems/` · 1024×1024 (square) · revision 1 · ⬜ not painted yet
+Folder `art/craft-systems/` · 1024×1024 (square) · revision 1 · ✅ published (r1: full)
 
 _Tondo of a stone aqueduct whose channels branch across a valley._
 
@@ -436,7 +436,7 @@ Save the result as `art/craft-systems/full.png`.
 
 ## 11. Craft · Delivery
 
-Folder `art/craft-delivery/` · 1024×1024 (square) · revision 1 · ⬜ not painted yet
+Folder `art/craft-delivery/` · 1024×1024 (square) · revision 1 · ✅ published (r1: full)
 
 _Tondo of identical crates being loaded onto a ship from a stone quay at dawn._
 
@@ -458,7 +458,7 @@ Save the result as `art/craft-delivery/full.png`.
 
 ## 12. Craft · Business
 
-Folder `art/craft-business/` · 1024×1024 (square) · revision 1 · ⬜ not painted yet
+Folder `art/craft-business/` · 1024×1024 (square) · revision 1 · ✅ published (r1: full)
 
 _Tondo of a merchant's counting house with ledgers, scales and dyed cloth._
 
@@ -480,7 +480,7 @@ Save the result as `art/craft-business/full.png`.
 
 ## 13. Finale (contact)
 
-Folder `art/finale/` · 1536×1024 (3:2 landscape) · revision 1 · ⬜ not painted yet
+Folder `art/finale/` · 1536×1024 (3:2 landscape) · revision 1 · ✅ published (r1: full)
 
 _A patron's study at dusk with an unsealed letter on the desk and a window onto a city of domes._
 
