@@ -32,6 +32,21 @@ gitleaks git --log-opts="--all" .
 
 ---
 
+## Quick path: one script for §1–4
+
+In Cloud Shell (already signed in) or any terminal after `gcloud auth login`:
+
+```bash
+git clone -b v2-gallery https://github.com/Zanemvula/Portfolio-Website.git
+cd Portfolio-Website
+bash deploy/bootstrap.sh            # new project "ntsikagqiba-portfolio"; or pass your own project ID
+```
+
+It creates the project, links billing (when you have exactly one billing account; otherwise
+re-run it with `BILLING_ACCOUNT=<id>`), and sets up everything in §2–4. It is safe to re-run. It
+ends by printing the four repository variables for §5. The manual steps below are the same
+commands, one at a time.
+
 ## 1. Variables
 
 ```bash
@@ -55,7 +70,7 @@ gcloud run services list                           # note any old service to ret
 
 ```bash
 gcloud services enable run.googleapis.com artifactregistry.googleapis.com \
-  iamcredentials.googleapis.com sts.googleapis.com storage.googleapis.com \
+  iamcredentials.googleapis.com sts.googleapis.com storage.googleapis.com billingbudgets.googleapis.com \
   cloudbuild.googleapis.com     # Cloud Build is only needed for the optional manual deploy in §6
 
 gcloud billing accounts list
@@ -206,6 +221,10 @@ gcloud storage cp -r art/* gs://ntsikagqiba-assets/originals/
 npm run art:process                 # preview: http://localhost:4321 after `npm run dev`
 npm run art:process -- --upload     # publish, then commit content/paintings.json
 ```
+
+**D. Already converted somewhere else** (for example in a Claude session without cloud
+credentials): `bash deploy/publish-art.sh paintings-web.zip art-originals.zip` uploads the web
+files with the right headers, and the originals, then commit the matching `content/paintings.json`.
 
 **C. With the OpenAI API instead of ChatGPT** (optional): set the `OPENAI_API_KEY` secret and
 run the **Art** workflow with *Paint missing scenes* ticked, or locally run
