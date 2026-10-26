@@ -59,6 +59,7 @@ jobs:
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           PAINTING_MODEL: ${{ vars.PAINTING_MODEL }}
+          CUTOUT_MODEL: ${{ vars.CUTOUT_MODEL }}
           SCENES: ${{ inputs.scenes }}
         run: npx tsx scripts/art-generate.ts $SCENES
 

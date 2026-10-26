@@ -480,7 +480,7 @@ Save the result as `art/craft-business/full.png`.
 
 ## 13. Finale (contact)
 
-Folder `art/finale/` · 1536×1024 (3:2 landscape) · revision 1 · ✅ published (r1: full)
+Folder `art/finale/` · 1536×1024 (3:2 landscape) · revision 1 · ✅ published (r1: full, plate, foreground)
 
 _A patron's study at dusk with an unsealed letter on the desk and a window onto a city of domes._
 

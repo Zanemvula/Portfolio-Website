@@ -9,14 +9,18 @@
  *   npm run art:generate -- --force           # repaint even if the files exist (otherwise a re-run resumes)
  *
  * OPENAI_API_KEY comes from the environment or .env and is never printed.
- * PAINTING_MODEL overrides the model (default gpt-image-1).
+ * PAINTING_MODEL overrides the model (default gpt-image-2; gpt-image-1 is retired).
+ * CUTOUT_MODEL paints the transparent layers (default gpt-image-1.5: gpt-image-2 has no transparent output).
  */
 import { createReadStream, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import OpenAI, { toFile } from 'openai';
 import { INBOX, SIZE, args, layerPrompt, loadScenes, masterPrompt } from './lib/art';
 
-const MODEL = process.env.PAINTING_MODEL || 'gpt-image-1';
+const MODEL = process.env.PAINTING_MODEL || 'gpt-image-2';
+const CUTOUT_MODEL = process.env.CUTOUT_MODEL || (/^gpt-image-1/.test(MODEL) ? MODEL : 'gpt-image-1.5');
+// Only the gpt-image-1 family takes input_fidelity; later models always edit at high fidelity and reject it.
+const fidelity = (model: string) => (/^gpt-image-1/.test(model) ? { input_fidelity: 'high' as const } : {});
 const { keys, has } = args();
 if (existsSync('.env')) process.loadEnvFile('.env');
 // Accept the key under either spelling.
@@ -38,7 +42,7 @@ const jobs = scenes.flatMap((s) => {
 
 if (has('dry-run')) {
   for (const j of jobs) console.log(`\n# ${j.s.key}/${j.id}.png\n${j.layer ? layerPrompt(j.s, j.layer) : masterPrompt(j.s)}`);
-  console.log(`\n${jobs.length} images would be created with ${MODEL}.`);
+  console.log(`\n${jobs.length} images would be created with ${MODEL} (cut-outs: ${CUTOUT_MODEL}).`);
   process.exit(0);
 }
 if (jobs.length === 0) {
@@ -50,7 +54,7 @@ if (!process.env.OPENAI_API_KEY) {
   process.exit(1);
 }
 
-console.log(`Painting ${jobs.length} images with ${MODEL} (high quality)…`);
+console.log(`Painting ${jobs.length} images with ${MODEL}, cut-outs with ${CUTOUT_MODEL} (high quality)…`);
 const client = new OpenAI({ maxRetries: 4, timeout: 10 * 60 * 1000 });
 const failedScenes = new Set<string>();
 let done = 0;
@@ -73,14 +77,15 @@ for (const j of jobs) {
     } else {
       const fullPath = join(dir, 'full.png');
       if (!existsSync(fullPath)) throw new Error('full.png is missing');
+      const model = j.layer.transparent ? CUTOUT_MODEL : MODEL;
       const res = await client.images.edit({
-        model: MODEL,
+        model,
         image: await toFile(createReadStream(fullPath), 'full.png', { type: 'image/png' }),
         prompt: layerPrompt(j.s, j.layer),
         size,
         quality: 'high',
         background: j.layer.transparent ? 'transparent' : 'opaque',
-        input_fidelity: 'high',
+        ...fidelity(model),
         output_format: 'png',
       });
       b64 = res.data?.[0]?.b64_json;

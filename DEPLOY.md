@@ -139,7 +139,7 @@ Add these under **Settings → Secrets and variables → Actions**. The four ide
 | `WIF_SA` | variable | `gh-deployer@<project>.iam.gserviceaccount.com` |
 | `RUN_SA` | variable | `portfolio-runtime@<project>.iam.gserviceaccount.com` |
 | `GCP_PROJECT_ID` | variable | your project ID |
-| `PAINTING_MODEL` | variable (optional) | leave unset for `gpt-image-1` |
+| `PAINTING_MODEL` | variable (optional) | leave unset for `gpt-image-2` (cut-outs use `gpt-image-1.5`; override with `CUTOUT_MODEL`) |
 | `OPENAI_API_KEY` | **secret** | your OpenAI key, optional: only for API painting in `art.yml` |
 
 Or, with the GitHub CLI:
