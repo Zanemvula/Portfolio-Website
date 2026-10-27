@@ -1,6 +1,6 @@
 # ---- Build: Astro static site ----
 # Base images come from mirror.gcr.io (Google's Docker Hub mirror) to avoid anonymous pull limits.
-FROM mirror.gcr.io/library/node:22.23.3-alpine AS build
+FROM mirror.gcr.io/library/node:26.12.1-alpine AS build
 WORKDIR /app
 ENV ASTRO_TELEMETRY_DISABLED=1
 COPY package.json package-lock.json ./
