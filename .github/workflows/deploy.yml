@@ -87,5 +87,5 @@ jobs:
 
       - name: Smoke test
         run: |
-          curl -fsS "${{ steps.deploy.outputs.url }}/healthz"
+          curl -fsS "${{ steps.deploy.outputs.url }}/health"
           curl -fsS -o /dev/null -w "GET / → %{http_code} in %{time_total}s\n" "${{ steps.deploy.outputs.url }}/"

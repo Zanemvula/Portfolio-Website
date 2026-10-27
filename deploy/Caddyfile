@@ -40,8 +40,8 @@
 	@unhashed not path /_astro/*
 	header @unhashed Cache-Control "public, max-age=300, must-revalidate"
 
-	# Cloud Run health checks and uptime probes.
-	@health path /healthz
+	# Smoke tests and uptime probes. Not /healthz: Cloud Run reserves paths ending in "z" and its front end answers them with 404.
+	@health path /health
 	respond @health "ok" 200
 
 	handle_errors {
