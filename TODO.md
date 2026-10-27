@@ -7,7 +7,7 @@
 - [x] Run the GCP bootstrap (DEPLOY.md §1–4): project `ntsikagqiba-portfolio`, 2026-10-27.
 - [x] Add repo variables `WIF_PROVIDER`, `WIF_SA`, `RUN_SA`, `GCP_PROJECT_ID` (DEPLOY.md §5). Optional, still open: the secret `OPENAI_API_KEY`, only for API painting in the Art workflow.
 - [x] First deploy (DEPLOY.md §6): https://portfolio-156341520802.europe-west1.run.app (revision `portfolio-00002-6bm`).
-- [ ] Create a Formspree form; put its ID in `content/site.json` → `contact.formspreeId`.
+- [x] Create a Formspree form; put its ID in `content/site.json` → `contact.formspreeId` (`xnpppyez`).
 - [x] Upload the CV to the bucket and set `cv` in `content/site.json` (DEPLOY.md §8).
 - [ ] Consider a Calendly event aimed at hiring managers (e.g. "30-min intro call"); the current link is `free-strategy-session`, which reads as an agency sales call.
 - [x] **Paint the scenes** ([ART.md](ART.md)): all 11 published scenes are in `gs://ntsikagqiba-assets/paintings/`, originals in `originals/`.
