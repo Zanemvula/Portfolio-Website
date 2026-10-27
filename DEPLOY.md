@@ -37,7 +37,7 @@ gitleaks git --log-opts="--all" .
 In Cloud Shell (already signed in) or any terminal after `gcloud auth login`:
 
 ```bash
-git clone -b v2-gallery https://github.com/Zanemvula/Portfolio-Website.git
+git clone https://github.com/Zanemvula/Portfolio-Website.git
 cd Portfolio-Website
 bash deploy/bootstrap.sh            # new project "ntsikagqiba-portfolio"; or pass your own project ID
 ```
@@ -167,38 +167,72 @@ gh variable set GCP_PROJECT_ID --repo "$GH_REPO" --body "$PROJECT_ID"
 gh secret set OPENAI_API_KEY --repo "$GH_REPO"      # prompts; never put it on the command line
 ```
 
-## 6. First deploy ("a live ugly URL")
+## 6. The pipeline
 
-`deploy.yml` runs on every push to `main` **and** `v2-gallery`. It skips the deploy job until the
-variables above exist. Once they are set, re-run the latest **Deploy** run from the Actions tab
-(Re-run all jobs), or push any commit to `v2-gallery`. The run summary links the `run.app` URL.
+Nothing reaches `main` without passing CI, and nothing reaches visitors without passing a smoke
+test on Cloud Run first.
 
-> GitHub only shows the **Run workflow** button for workflows that exist on the default branch.
-> Until `v2-gallery` is merged, use *Re-run* or a push instead.
-
-Optional manual deploy from your machine, built in Cloud Build so nothing heavy runs locally:
-
-```bash
-gcloud builds submit --tag "$REGION-docker.pkg.dev/$PROJECT_ID/$REPO/$SERVICE:manual-$(git rev-parse --short HEAD)"
-gcloud run deploy "$SERVICE" \
-  --image "$REGION-docker.pkg.dev/$PROJECT_ID/$REPO/$SERVICE:manual-$(git rev-parse --short HEAD)" \
-  --region "$REGION" --service-account "$RUN_SA" --allow-unauthenticated --port 8080 \
-  --min-instances 0 --max-instances 2 --memory 256Mi --cpu 1 --concurrency 80 --cpu-boost
-gcloud run services describe "$SERVICE" --region "$REGION" --format='value(status.url)'
+```
+pull request ──► CI ─────────────► Preview ────────────► merge
+                 gitleaks           image CI tested        │
+                 lint · typecheck   → revision pr-<n>      │
+                 build · actionlint   (0% traffic)         ▼
+                 container smoke    → link on the PR     Deploy (main only)
+                 Lighthouse ≥ 90                           CI again on the merged commit
+                 saves the image                           push that exact image
+                                                           candidate revision, 0% traffic
+                 PR closed ──► PR Cleanup                  smoke-test candidate ─ fail → discard
+                 (tag + preview revisions removed)         promote: 100% in one step
+                                                           smoke-test production ─ fail → roll back
+                                                           check ntsikagqiba.com (warn only)
 ```
 
-Check it:
+| Workflow | Runs on | Does |
+|---|---|---|
+| `ci.yml` (**CI**) | every pull request; by hand; inside Deploy | The three required checks: *Secret scan (gitleaks)*, *Lint · typecheck · build* (also actionlint and shellcheck), *Container · Lighthouse* (builds the production image, smoke-tests it with the same script as production, Lighthouse ≥ 90 in every category, saves the image as the `image` artifact). |
+| `preview.yml` (**Preview**) | after CI passes on a PR from this repository | Pushes the image CI tested as `portfolio:pr-<n>-<sha>`, deploys it as revision `portfolio-pr-<n>-…` with **no traffic** at `https://pr-<n>---portfolio-….run.app`, smoke-tests it and posts the link on the PR (one comment, updated on each push). Fork and Dependabot PRs get CI only, never cloud access. |
+| `pr-cleanup.yml` (**PR Cleanup**) | a PR closes | Removes the `pr-<n>` tag and deletes that PR's preview revisions. |
+| `deploy.yml` (**Deploy**) | push to `main`; by hand (main only) | Runs CI on the merged commit, then releases the image CI tested: candidate revision with 0% traffic → smoke test → promote → smoke test production → automatic rollback if production fails. |
+| `rollback.yml` (**Rollback**) | by hand | Sends traffic back to the previous production revision, or to one you name, then smoke-tests it. Nothing is rebuilt. |
+| `art.yml` (**Art**) | by hand | Converts and uploads paintings, then opens a PR with `content/paintings.json`; merging it releases the art. |
+
+Every Cloud Run step goes through `deploy/cloudrun.sh`, so the deploy flags, the smoke test and the
+revision bookkeeping are defined once. The smoke test checks `/health`, `/`, `/works/`, a project
+room, a 404, and the CSP, HSTS and nosniff headers. Dependabot (`.github/dependabot.yml`) opens weekly
+PRs for npm, GitHub Actions and the Docker base images; they go through the same gate.
+
+### One-time GitHub settings (Settings → …)
+
+1. **Rules → Rulesets → New branch ruleset** named `main`. Set Enforcement *Active*, and Target *Default branch*. Turn on:
+   - *Restrict deletions*
+   - *Block force pushes*
+   - *Require a pull request before merging* (0 approvals is fine for a solo repo)
+   - *Require status checks to pass*, with these checks: `Secret scan (gitleaks)`, `Lint · typecheck · build`
+     and `Container · Lighthouse`. They appear in the picker after CI has run once on a PR.
+
+   Add yourself (Repository admin) to the bypass list only if you want an emergency path.
+2. **Environments → production → Deployment branches and tags → Selected branches → `main`**, so
+   nothing but `main` can release or roll back. Optionally add yourself as a *Required reviewer*
+   for a manual approval before each release.
+3. **Actions → General → Workflow permissions → Allow GitHub Actions to create and approve pull
+   requests**, so the Art workflow can open its manifest PR.
+
+### Releasing, checking and rolling back
+
+- **Release:** merge a PR. Deploy's run summary names the new revision and the one it replaced.
+- **What is live:** `gcloud run services describe portfolio --region europe-west1 --format='yaml(status.traffic)'`
+- **Roll back:** Actions → **Rollback** → Run workflow (leave the revision empty for "the previous
+  one"). Or from a terminal: `gcloud run services update-traffic portfolio --region europe-west1 --to-revisions <REVISION>=100`.
+- Images are kept by the Artifact Registry cleanup policy: the 5 newest, plus anything newer than
+  30 days. A revision older than that may have lost its image and can't be rolled back to.
+
+Optional manual release from your machine (Cloud Build, then the same script as the pipeline):
 
 ```bash
-URL=$(gcloud run services describe "$SERVICE" --region "$REGION" --format='value(status.url)')
-curl -sI -H 'Accept-Encoding: br' "$URL/" | grep -iE 'content-encoding|content-security|strict-transport|cache-control'
-```
-
-Roll back to an earlier revision:
-
-```bash
-gcloud run revisions list --service "$SERVICE" --region "$REGION"
-gcloud run services update-traffic "$SERVICE" --region "$REGION" --to-revisions=<REVISION>=100
+TAG=manual-$(git rev-parse --short HEAD)
+gcloud builds submit --tag "$REGION-docker.pkg.dev/$PROJECT_ID/$REPO/$SERVICE:$TAG"
+out=$(RUN_SA=$RUN_SA COMMIT=$(git rev-parse HEAD) deploy/cloudrun.sh deploy "$REGION-docker.pkg.dev/$PROJECT_ID/$REPO/$SERVICE:$TAG" "$TAG" candidate)
+deploy/cloudrun.sh smoke "$(sed -n 's/^url=//p' <<<"$out")" && deploy/cloudrun.sh promote "$(sed -n 's/^revision=//p' <<<"$out")"
 ```
 
 ## 7. Art (the painted scenes)
@@ -306,7 +340,7 @@ Then go to **Firebase console → Hosting → Add custom domain** and add the re
 
 1. Confirm `https://ntsikagqiba.com` and `https://www.ntsikagqiba.com` serve the new build.
 2. In `content/projects/portfolio.md`, set `draft: false` and add a log line.
-3. Merge `v2-gallery` into `main`, then remove `v2-gallery` from `deploy.yml` and `ci.yml`.
+3. ~~Merge `v2-gallery` into `main`~~ — done 2026-10-27; only `main` deploys (§6).
 4. Retire the old host: `gcloud run services delete <old-service> --region <old-region>`, or
    whatever served the AI Studio site.
 

@@ -1,0 +1,42 @@
+name: PR Cleanup
+
+# When a pull request closes (merged or not), remove its preview URL and delete its
+# preview revisions. Production is never touched: only revisions named
+# <service>-pr-<number>-… with no traffic are deleted.
+on:
+  pull_request:
+    types: [closed]
+
+permissions:
+  contents: read
+
+env:
+  REGION: europe-west1
+  SERVICE: portfolio
+
+jobs:
+  cleanup:
+    name: Remove the PR preview
+    if: github.event.pull_request.head.repo.full_name == github.repository && vars.WIF_PROVIDER != ''
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+
+      - uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ vars.WIF_PROVIDER }}
+          service_account: ${{ vars.WIF_SA }}
+
+      - uses: google-github-actions/setup-gcloud@v3
+
+      - name: Remove the tag and the revisions
+        run: |
+          n=${{ github.event.pull_request.number }}
+          deploy/cloudrun.sh untag "pr-$n"
+          deploy/cloudrun.sh prune "pr-$n-"
+          echo "Removed the preview for #$n." >> "$GITHUB_STEP_SUMMARY"

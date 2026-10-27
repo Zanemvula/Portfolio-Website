@@ -1,0 +1,114 @@
+name: Preview
+
+# Every pull request from this repository gets its own live copy of the site: once
+# CI passes, the image CI tested is deployed as a Cloud Run revision with NO
+# production traffic, at https://pr-<number>---<service>….run.app, and the link is
+# posted on the PR. PR Cleanup removes it when the PR closes.
+#
+# It runs on workflow_run (after CI) rather than on pull_request, so it reuses CI's
+# image and runs with this repository's workflow files and permissions. Pull
+# requests from forks, and Dependabot's, are skipped: they never get cloud access.
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: preview-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: true
+
+env:
+  REGION: europe-west1
+  SERVICE: portfolio
+
+jobs:
+  preview:
+    name: Deploy the PR preview
+    if: >-
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_repository.full_name == github.repository &&
+      github.event.workflow_run.actor.login != 'dependabot[bot]' &&
+      vars.WIF_PROVIDER != ''
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: write
+      id-token: write
+    env:
+      SHA: ${{ github.event.workflow_run.head_sha }}
+      RUN_SA: ${{ vars.RUN_SA }}
+      COMMIT: ${{ github.event.workflow_run.head_sha }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Find the pull request
+        id: pr
+        run: |
+          number=$(gh api "repos/${{ github.repository }}/commits/$SHA/pulls" --jq '[.[] | select(.state == "open")][0].number // empty')
+          if [ -z "$number" ]; then echo "No open PR for $SHA; nothing to preview."; fi
+          echo "number=$number" >> "$GITHUB_OUTPUT"
+
+      # The deploy script comes from main, never from the PR.
+      - uses: actions/checkout@v7
+        if: steps.pr.outputs.number != ''
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+
+      - uses: actions/download-artifact@v7
+        if: steps.pr.outputs.number != ''
+        with:
+          name: image
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+
+      - uses: google-github-actions/auth@v3
+        if: steps.pr.outputs.number != ''
+        with:
+          workload_identity_provider: ${{ vars.WIF_PROVIDER }}
+          service_account: ${{ vars.WIF_SA }}
+
+      - uses: google-github-actions/setup-gcloud@v3
+        if: steps.pr.outputs.number != ''
+
+      - name: Push the tested image
+        if: steps.pr.outputs.number != ''
+        env:
+          IMAGE: europe-west1-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/portfolio/portfolio:pr-${{ steps.pr.outputs.number }}-${{ github.event.workflow_run.head_sha }}
+        run: |
+          gcloud auth configure-docker "${REGION}-docker.pkg.dev" --quiet
+          docker load < image.tar.gz
+          docker tag portfolio:ci "$IMAGE"
+          docker push "$IMAGE"
+          echo "IMAGE=$IMAGE" >> "$GITHUB_ENV"
+
+      - name: Deploy the preview (no production traffic)
+        id: deploy
+        if: steps.pr.outputs.number != ''
+        run: |
+          n=${{ steps.pr.outputs.number }}
+          deploy/cloudrun.sh deploy "$IMAGE" "pr-$n-${SHA::7}-${GITHUB_RUN_ATTEMPT}" "pr-$n" >> "$GITHUB_OUTPUT"
+
+      - name: Smoke-test the preview
+        if: steps.pr.outputs.number != ''
+        run: deploy/cloudrun.sh smoke "${{ steps.deploy.outputs.url }}"
+
+      - name: Post the link on the PR
+        if: steps.pr.outputs.number != ''
+        run: |
+          n=${{ steps.pr.outputs.number }}
+          marker='<!-- preview-url -->'
+          body="$marker
+          **Preview:** ${{ steps.deploy.outputs.url }}
+
+          Commit \`${SHA::7}\` · revision \`${{ steps.deploy.outputs.revision }}\` · takes no production traffic · removed when this PR closes."
+          id=$(gh api "repos/${{ github.repository }}/issues/$n/comments" --paginate --jq ".[] | select(.body | startswith(\"$marker\")) | .id" | head -n1)
+          if [ -n "$id" ]; then
+            gh api -X PATCH "repos/${{ github.repository }}/issues/comments/$id" -f body="$body" >/dev/null
+          else
+            gh api "repos/${{ github.repository }}/issues/$n/comments" -f body="$body" >/dev/null
+          fi
+          echo "### Preview for #$n: ${{ steps.deploy.outputs.url }}" >> "$GITHUB_STEP_SUMMARY"

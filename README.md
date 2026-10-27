@@ -46,7 +46,7 @@ docker build -t portfolio . && docker run -p 8080:8080 portfolio
 
 ## Docs
 
-- [DEPLOY.md](DEPLOY.md): GCP bootstrap, WIF, the first deploy, paintings, the domain, cost.
+- [DEPLOY.md](DEPLOY.md): GCP bootstrap, WIF, the CI/CD pipeline (PR previews, verified releases, rollback), paintings, the domain, cost.
 - [DECISIONS.md](DECISIONS.md): every call the brief didn't settle, and why.
 - [ART.md](ART.md): the painting brief, generated from the content.
 - [TODO.md](TODO.md): setup steps and the facts still to be supplied.

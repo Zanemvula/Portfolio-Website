@@ -1,0 +1,72 @@
+name: Rollback
+
+# Send production traffic back to an earlier revision in one step. The revision is
+# still deployed and its image is still in Artifact Registry, so nothing is rebuilt.
+# Leave the input empty to go back to the revision that served before the current one.
+# The next push to main releases as usual.
+on:
+  workflow_dispatch:
+    inputs:
+      revision:
+        description: 'Revision to restore, e.g. portfolio-9869e13-1234567890. Empty = the previous one.'
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+env:
+  REGION: europe-west1
+  SERVICE: portfolio
+
+jobs:
+  rollback:
+    name: Roll back production
+    if: vars.WIF_PROVIDER != ''
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    environment:
+      name: production
+      url: https://ntsikagqiba.com
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ vars.WIF_PROVIDER }}
+          service_account: ${{ vars.WIF_SA }}
+
+      - uses: google-github-actions/setup-gcloud@v3
+
+      - name: Choose the revision
+        id: target
+        env:
+          WANTED: ${{ inputs.revision }}
+        run: |
+          current=$(deploy/cloudrun.sh serving)
+          target=${WANTED:-$(deploy/cloudrun.sh previous)}
+          if [ -z "$target" ]; then echo "::error::No earlier production revision to roll back to."; exit 1; fi
+          if [ "$target" = "$current" ]; then echo "::error::$target is already serving."; exit 1; fi
+          echo "current=$current" >> "$GITHUB_OUTPUT"
+          echo "target=$target" >> "$GITHUB_OUTPUT"
+          echo "Rolling back from $current to $target"
+
+      - name: Roll back
+        run: deploy/cloudrun.sh promote "${{ steps.target.outputs.target }}"
+
+      - name: Smoke-test production
+        run: deploy/cloudrun.sh smoke "$(deploy/cloudrun.sh url)"
+
+      - name: Summary
+        run: |
+          {
+            echo "### Rolled back"
+            echo "- Now serving: \`${{ steps.target.outputs.target }}\`"
+            echo "- Was: \`${{ steps.target.outputs.current }}\` (still deployed; run this workflow with its name to return to it)"
+          } >> "$GITHUB_STEP_SUMMARY"
