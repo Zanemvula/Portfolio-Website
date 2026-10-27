@@ -212,7 +212,9 @@ async function init() {
   if (finePointer) pointerParallax(gsap);
 
   // The chapter sequence is the heaviest set-up (pinning measures the whole page),
-  // so build it only as the reader approaches — or at once if the URL points into it.
+  // so build it only as the reader approaches. Pinning adds thousands of pixels of
+  // scroll, which moves every section after it: anything that jumps to an anchor
+  // (a link, or arriving with a #hash) must build first, then measure.
   const root = document.querySelector('[data-chapters]');
   if (!root) return;
   let built = false;
@@ -222,15 +224,19 @@ async function init() {
     io.disconnect();
     chapters(gsap, ScrollTrigger, lenis);
     ScrollTrigger.refresh();
-    const target = location.hash.length > 1 ? document.getElementById(decodeURIComponent(location.hash.slice(1))) : null;
-    const pinned = target && anchorTargets.get(target);
-    if (pinned) scrollToY(pinned(), lenis, true);
+    // Lenis clamps scrollTo to the page height it last measured.
+    lenis?.resize();
   };
   const io = new IntersectionObserver((entries) => entries.some((e) => e.isIntersecting) && build(), { rootMargin: '150% 0px' });
   io.observe(root);
-  if (location.hash.startsWith('#chapter-')) build();
-  // In-page links into the sequence must work before it exists.
-  document.addEventListener('click', (e) => (e.target as Element).closest('a[href*="#chapter-"], a[href="#contents"]') && build(), { capture: true });
+  const hashTarget = location.hash.length > 1 ? document.getElementById(decodeURIComponent(location.hash.slice(1))) : null;
+  if (hashTarget) {
+    build();
+    const pinned = anchorTargets.get(hashTarget);
+    scrollToY(pinned ? pinned() : hashTarget.getBoundingClientRect().top + window.scrollY, lenis, true);
+  }
+  // Runs before anchors() resolves the click, so it measures the built page.
+  document.addEventListener('click', (e) => (e.target as Element).closest('a[href^="#"], a[href^="/#"]') && build(), { capture: true });
 }
 
 if (!reduced.matches) {
