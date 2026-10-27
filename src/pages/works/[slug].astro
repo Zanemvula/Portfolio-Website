@@ -1,0 +1,196 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Scene from '../../components/edition/Scene.astro';
+import ArchitectureDiagram from '../../components/ArchitectureDiagram.astro';
+import Icon from '../../components/Icon.astro';
+import { getWorks } from '../../lib/content';
+import { known, isTodo, roman, formatMonth, sceneSources, CLOUD_LABELS, STATUS_LABELS } from '../../lib/site';
+
+export const getStaticPaths = (async () => {
+  const works = await getWorks();
+  return works.map((work, i) => ({
+    params: { slug: work.id },
+    props: { work, prev: works[i - 1], next: works[i + 1] },
+  }));
+}) satisfies GetStaticPaths;
+
+const { work, prev, next } = Astro.props;
+const d = work.data;
+const { Content } = await render(work);
+const hasBody = (work.body ?? '').replace(/<!--[\s\S]*?-->/g, '').trim().length > 0;
+const problem = known(d.problem);
+const role = known(d.role);
+const year = known(d.year);
+const status = STATUS_LABELS[d.status];
+const stack = d.stack.filter((s) => !isTodo(s));
+const links = [
+  known(d.links.live) && { href: known(d.links.live)!, label: 'Visit live', icon: 'external' as const },
+  known(d.links.github) && { href: known(d.links.github)!, label: 'Source on GitHub', icon: 'github' as const },
+  known(d.links.caseStudy) && { href: known(d.links.caseStudy)!, label: 'Read the case study', icon: 'scroll' as const },
+].filter((l): l is { href: string; label: string; icon: 'external' | 'github' | 'scroll' } => Boolean(l));
+const log = [...d.log].sort((a, b) => b.date.localeCompare(a.date));
+const og = sceneSources(work.id)?.og;
+---
+
+<Base title={d.title} description={d.summary} image={og} imageAlt={d.scene.alt} type="article">
+  <header class="room-hero on-dark">
+    <Scene id={work.id} scene={d.scene} priority sizes="100vw" />
+    <div class="chapter__veil" aria-hidden="true"></div>
+    <div class="room-hero__copy">
+      <a class="room__back" href={`/#chapter-${work.id}`}>← Return to the gallery</a>
+      <p class="eyebrow">Chapter {roman(d.order)}{year && ` · ${year}`}{d.clouds.length > 0 && ` · ${d.clouds.map((c) => CLOUD_LABELS[c]).join(' · ')}`}</p>
+      <h1>{d.title}</h1>
+      <p class="room__summary">{d.summary}</p>
+    </div>
+  </header>
+  <article class="room brushed-top">
+    <div class="wrap room__body">
+      <div>
+        <dl class="room__facts">
+          {
+            role && (
+              <div>
+                <dt>My role</dt>
+                <dd>{role}</dd>
+              </div>
+            )
+          }
+          {
+            d.organisation && (
+              <div>
+                <dt>For</dt>
+                <dd>{d.organisation}</dd>
+              </div>
+            )
+          }
+          {
+            year && (
+              <div>
+                <dt>Year</dt>
+                <dd>{year}</dd>
+              </div>
+            )
+          }
+          {
+            status && (
+              <div>
+                <dt>Status</dt>
+                <dd>{status}</dd>
+              </div>
+            )
+          }
+        </dl>
+
+        {
+          d.confidential && (
+            <p class="notice">
+              An employer or client system. This room describes the architecture and my role; it contains no proprietary code,
+              internal addresses, credentials or customer data.
+            </p>
+          )
+        }
+
+        <section aria-labelledby="problem">
+          <h2 id="problem">Problem</h2>
+          {problem ? <p class="prose">{problem}</p> : <p class="pending">This part of the catalogue entry is being written.</p>}
+        </section>
+
+        <section aria-labelledby="built">
+          <h2 id="built">What I built</h2>
+          {
+            hasBody ? (
+              <div class="prose">
+                <Content />
+              </div>
+            ) : (
+              <p class="pending">This part of the catalogue entry is being written.</p>
+            )
+          }
+        </section>
+
+        <section aria-labelledby="architecture">
+          <h2 id="architecture">Architecture</h2>
+          {
+            d.architecture ? (
+              <ArchitectureDiagram id={work.id} title={d.title} tiers={d.architecture.tiers} edges={d.architecture.edges} />
+            ) : (
+              <p class="pending">The architecture plate is being drawn.</p>
+            )
+          }
+        </section>
+
+        {
+          stack.length > 0 && (
+            <section aria-labelledby="stack">
+              <h2 id="stack">Stack</h2>
+              <ul class="badges">
+                {stack.map((s) => (
+                  <li>{s}</li>
+                ))}
+              </ul>
+            </section>
+          )
+        }
+
+        {
+          links.length > 0 && (
+            <section aria-labelledby="links">
+              <h2 id="links">Links</h2>
+              <div class="room__links">
+                {links.map((l) => (
+                  <a class="btn btn--ink" href={l.href} rel="noopener" target="_blank">
+                    <Icon name={l.icon} /> {l.label}
+                  </a>
+                ))}
+              </div>
+            </section>
+          )
+        }
+
+        <section aria-labelledby="restoration">
+          <h2 id="restoration">Restoration log</h2>
+          {
+            log.length > 0 ? (
+              <ol class="restoration">
+                {log.map((entry) => (
+                  <li>
+                    <time datetime={entry.date}>{formatMonth(entry.date)}</time>
+                    {entry.note}
+                  </li>
+                ))}
+              </ol>
+            ) : (
+              <p class="pending">No restorations recorded yet.</p>
+            )
+          }
+        </section>
+
+        <nav class="room__nav" aria-label="Other works">
+          {
+            prev && (
+              <a href={`/works/${prev.id}/`}>
+                <span>← Previous</span>
+                <strong>{prev.data.title}</strong>
+              </a>
+            )
+          }
+          {
+            next && (
+              <a href={`/works/${next.id}/`}>
+                <span>Next →</span>
+                <strong>{next.data.title}</strong>
+              </a>
+            )
+          }
+        </nav>
+      </div>
+    </div>
+  </article>
+</Base>
+
+<script>
+  import '../../scripts/gallery-motion';
+  import '../../scripts/painting-transition';
+</script>

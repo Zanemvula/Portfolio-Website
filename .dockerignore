@@ -1,0 +1,12 @@
+node_modules
+dist
+.astro
+.cache
+out
+.lighthouseci
+.git
+.github
+.env
+.env.*
+*.md
+!content/**/*.md

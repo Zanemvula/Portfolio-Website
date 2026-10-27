@@ -1,0 +1,32 @@
+---
+import Base from '../layouts/Base.astro';
+import Frontispiece from '../components/edition/Frontispiece.astro';
+import Contents from '../components/edition/Contents.astro';
+import Chapters from '../components/edition/Chapters.astro';
+import ChapterRail from '../components/edition/ChapterRail.astro';
+import HallOfCrafts from '../components/HallOfCrafts.astro';
+import Provenance from '../components/Provenance.astro';
+import Apprenticeship from '../components/Apprenticeship.astro';
+import Patronage from '../components/Patronage.astro';
+import { getWorks, getCrafts, getStudies } from '../lib/content';
+import { edition, sceneSources } from '../lib/site';
+
+const [works, crafts, studies] = await Promise.all([getWorks(), getCrafts(), getStudies()]);
+const heroOg = sceneSources('hero')?.og;
+---
+
+<Base image={heroOg} imageAlt={heroOg ? edition.hero.alt : undefined}>
+  <Frontispiece />
+  <Contents works={works} />
+  <ChapterRail works={works} />
+  <Chapters works={works} />
+  <HallOfCrafts crafts={crafts} />
+  <Provenance />
+  <Apprenticeship studies={studies} />
+  <Patronage />
+</Base>
+
+<script>
+  import '../scripts/gallery-motion';
+  import '../scripts/painting-transition';
+</script>

@@ -1,0 +1,56 @@
+/*
+ * The Gallery — design tokens.
+ * Contrast notes (WCAG): ink/parchment ≈ 15:1, oxblood/parchment ≈ 9.3:1,
+ * lapis/parchment ≈ 9.3:1, bronze/parchment ≈ 5.3:1, parchment/wall ≈ 13.7:1.
+ * --gold-leaf is decorative only on light grounds (≈ 2.6:1); use --bronze for text.
+ */
+:root {
+  /* Pigments */
+  --parchment: #f3e9d2;
+  --parchment-deep: #e7d8b6;
+  --parchment-edge: #d6c296;
+  --ink: #1c1712;
+  --ink-soft: #4a3f33;
+  --oxblood: #6e1f1b;
+  --wall: #3b100e;
+  --wall-deep: #250907;
+  --night: #14110e;
+  --lapis: #1f3a6b;
+  --lapis-light: #8fb0e8;
+  --gold-leaf: #c9a24a;
+  --gold-hi: #f1d98a;
+  --gold-lo: #7a5a1e;
+  --bronze: #7a5a1e;
+  --brass: #c7a14f;
+  --brass-hi: #e8cf8a;
+  --engraving: #2a1d08;
+  --on-dark: #f3e9d2;
+  --on-dark-soft: #cbbfa6;
+
+  /* Type */
+  --font-display: 'Cormorant Garamond', 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+  --font-inscription: 'Cinzel', 'Trajan Pro', 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'Inter Variable', Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  --step--1: clamp(0.83rem, 0.8rem + 0.15vw, 0.9rem);
+  --step-0: clamp(1rem, 0.96rem + 0.2vw, 1.1rem);
+  --step-1: clamp(1.25rem, 1.15rem + 0.5vw, 1.5rem);
+  --step-2: clamp(1.6rem, 1.4rem + 1vw, 2.2rem);
+  --step-3: clamp(2.1rem, 1.7rem + 2vw, 3.4rem);
+  --step-4: clamp(2.8rem, 2rem + 4vw, 5.6rem);
+  --step-5: clamp(3.2rem, 2rem + 6.5vw, 8rem);
+
+  /* Space */
+  --gutter: clamp(1rem, 0.6rem + 2vw, 2.5rem);
+  --section: clamp(4.5rem, 3rem + 7vw, 10rem);
+  --measure: 66ch;
+  --radius: 2px;
+
+  /* Motion */
+  --ease-gallery: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --dur-slow: 900ms;
+  --dur: 420ms;
+
+  /* Focus */
+  --focus: var(--lapis);
+}

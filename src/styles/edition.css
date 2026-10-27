@@ -1,0 +1,799 @@
+/* =====================================================================
+ * The Edition — full-screen painted scenes, a fly-through frontispiece,
+ * brushstroke transitions. Everything here reads as a complete static page;
+ * gallery-motion.ts adds `is-cinematic` / `is-sequenced` to animate it.
+ * ===================================================================== */
+
+/* ---------- Scene ---------- */
+.scene {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background: #2a1d12;
+}
+
+.scene--landscape {
+  aspect-ratio: 3 / 2;
+}
+
+.scene--square {
+  aspect-ratio: 1;
+}
+
+.scene__layer {
+  position: absolute;
+  inset: -3%;
+  width: 106%;
+  height: 106%;
+  pointer-events: none;
+  transform-origin: 50% 60%;
+}
+
+.scene__layer img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 50%;
+}
+
+.scene--focus-left .scene__layer img {
+  object-position: 28% 50%;
+}
+
+.scene--focus-right .scene__layer img {
+  object-position: 72% 50%;
+}
+
+/* Sinopia: the red-ochre under-drawing, on fresh plaster */
+.scene--sinopia {
+  background:
+    radial-gradient(90% 70% at 50% 35%, rgb(255 248 230 / 0.55), transparent 70%),
+    radial-gradient(60% 50% at 15% 90%, rgb(164 71 44 / 0.12), transparent 70%),
+    repeating-linear-gradient(32deg, rgb(120 80 40 / 0.025) 0 2px, transparent 2px 7px),
+    linear-gradient(170deg, #ece0c8, #dcc7a2 60%, #cdb38a);
+}
+
+.scene__varnish {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 90% at 50% 45%, transparent 55%, rgb(25 12 6 / 0.55)),
+    linear-gradient(180deg, rgb(255 220 150 / 0.06), transparent 40%);
+}
+
+/* ---------- Frontispiece ---------- */
+.frontis {
+  position: relative;
+  background: var(--wall-deep);
+}
+
+.frontis__stage {
+  position: relative;
+  min-height: 100svh;
+  display: grid;
+  grid-template-rows: auto auto auto;
+  justify-items: center;
+  align-content: center;
+  gap: clamp(1.5rem, 3vh, 2.5rem);
+  padding: 6.5rem var(--gutter) 5rem;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.frontis__wall {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-color: var(--wall);
+  background-image:
+    radial-gradient(55% 45% at 50% 48%, rgb(255 214 140 / 0.2), transparent 70%),
+    linear-gradient(180deg, rgb(0 0 0 / 0.45), transparent 30%, transparent 70%, rgb(0 0 0 / 0.55)),
+    url('/damask.svg');
+  background-size:
+    auto,
+    auto,
+    180px 180px;
+}
+
+.frontis__title {
+  text-align: center;
+  z-index: 3;
+}
+
+.frontis__edition {
+  font-family: var(--font-inscription);
+  font-size: var(--step--1);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--gold-leaf);
+  margin: 0 0 0.8rem;
+}
+
+.frontis h1 {
+  margin: 0;
+  font-weight: 500;
+  line-height: 0.92;
+  color: var(--on-dark);
+}
+
+.frontis__the {
+  display: block;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: var(--step-2);
+  color: var(--on-dark-soft);
+  margin-bottom: 0.2em;
+}
+
+.frontis__name {
+  display: block;
+  font-size: clamp(3.2rem, 1.5rem + 8vw, 9.5rem);
+  letter-spacing: -0.015em;
+}
+
+.frontis__role {
+  margin: 1rem 0 0;
+  font-size: var(--step--1);
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--on-dark-soft);
+}
+
+.frontis__role > span {
+  display: block;
+}
+
+.frontis__clouds {
+  color: var(--gold-leaf);
+}
+
+.frontis__frame {
+  position: relative;
+  z-index: 2;
+  width: min(84vw, 26rem);
+  transform-origin: 50% 50%;
+}
+
+.frontis__scene {
+  aspect-ratio: 4 / 5;
+}
+
+@media (min-width: 48rem) {
+  .frontis__frame {
+    width: min(58vw, calc((100svh - 25rem) * 1.5), 54rem);
+    min-width: 22rem;
+  }
+
+  .frontis__scene {
+    aspect-ratio: 3 / 2;
+  }
+}
+
+.frontis__intro {
+  z-index: 3;
+  text-align: center;
+  max-width: 40rem;
+}
+
+.frontis__value {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: var(--step-2);
+  line-height: 1.25;
+  margin: 0 auto 1.5rem;
+  color: var(--on-dark);
+}
+
+.frontis__cue {
+  position: absolute;
+  left: 50%;
+  bottom: 1.25rem;
+  translate: -50% 0;
+  z-index: 3;
+  display: grid;
+  justify-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-inscription);
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--on-dark-soft);
+  text-decoration: none;
+  padding-block: 0.75rem;
+}
+
+.frontis__cue::after {
+  content: '';
+  width: 1px;
+  height: 2.2rem;
+  background: linear-gradient(var(--gold-leaf), transparent);
+}
+
+/* Cinematic mode: the stage is pinned; the frame flies at the camera. */
+.frontis.is-cinematic .frontis__stage {
+  height: 100vh;
+  min-height: 0;
+  padding: 0;
+  display: block;
+}
+
+.frontis.is-cinematic .frontis__frame {
+  position: absolute;
+  left: 50%;
+  top: 53%;
+  translate: -50% -50%;
+}
+
+.frontis.is-cinematic .frontis__title {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: max(5.5rem, 9vh);
+  padding-inline: var(--gutter);
+}
+
+.frontis.is-cinematic .frontis__intro {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  width: min(100% - 2 * var(--gutter), 42rem);
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  background: radial-gradient(closest-side, rgb(14 10 8 / 0.78), rgb(14 10 8 / 0.5) 70%, transparent);
+}
+
+.frontis.is-cinematic .frontis__frame {
+  top: calc(50% + 6.5rem);
+  width: min(84vw, calc((100vh - 24rem) * 0.8), 26rem);
+}
+
+@media (min-width: 48rem) {
+  .frontis.is-cinematic .frontis__title {
+    top: 4.5rem;
+  }
+
+  .frontis.is-cinematic .frontis__name {
+    font-size: clamp(3.2rem, 1rem + 6.5vw, 8rem);
+  }
+
+  .frontis.is-cinematic .frontis__frame {
+    top: calc(50% + 8rem);
+    width: min(50vw, calc((100vh - 27rem) * 1.5), 54rem);
+    min-width: 0;
+  }
+}
+
+/* ---------- Brushed edges ---------- */
+.brushed-top {
+  position: relative;
+}
+
+.brushed-top::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(100% - 1px);
+  height: clamp(36px, 5vw, 72px);
+  background: inherit;
+  background-color: var(--brushed-color, var(--parchment));
+  -webkit-mask: url('/brush-edge.webp') bottom / 100% 100% no-repeat;
+  mask: url('/brush-edge.webp') bottom / 100% 100% no-repeat;
+  pointer-events: none;
+}
+
+/* ---------- Contents ---------- */
+.contents {
+  --brushed-color: var(--parchment);
+  position: relative;
+  z-index: 4;
+  padding-block: clamp(4rem, 8vw, 8rem);
+  background: var(--parchment);
+}
+
+.contents__grid {
+  display: grid;
+  gap: 2.5rem;
+}
+
+@media (min-width: 60rem) {
+  .contents__grid {
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    gap: 5rem;
+    align-items: start;
+  }
+
+  .contents__head {
+    position: sticky;
+    top: 6rem;
+  }
+}
+
+.contents h2 {
+  font-size: var(--step-5);
+  font-weight: 500;
+  line-height: 0.9;
+  margin-bottom: 1.25rem;
+}
+
+.contents__intro {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: var(--step-2);
+  line-height: 1.25;
+  color: var(--ink-soft);
+  max-width: 26ch;
+}
+
+.contents__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--ink);
+}
+
+.contents__list a {
+  display: grid;
+  grid-template-columns: 3.2rem 1fr;
+  gap: 0.15rem 1rem;
+  align-items: baseline;
+  padding-block: 1.2rem;
+  border-bottom: 1px solid var(--parchment-edge);
+  color: var(--ink);
+  text-decoration: none;
+  transition:
+    color var(--dur) var(--ease-gallery),
+    padding var(--dur) var(--ease-gallery);
+}
+
+.contents__list a:hover,
+.contents__list a:focus-visible {
+  color: var(--oxblood);
+  padding-left: 0.6rem;
+}
+
+.contents__no {
+  font-family: var(--font-inscription);
+  font-size: var(--step-0);
+  color: var(--bronze);
+}
+
+.contents__title {
+  font-family: var(--font-display);
+  font-size: var(--step-3);
+  font-weight: 500;
+  line-height: 1.05;
+}
+
+.contents__meta {
+  grid-column: 2;
+  font-size: var(--step--1);
+  color: var(--ink-soft);
+  letter-spacing: 0.04em;
+}
+
+@media (min-width: 48rem) {
+  .contents__list a {
+    grid-template-columns: 4rem 1fr auto;
+  }
+
+  .contents__meta {
+    grid-column: 3;
+    text-align: right;
+  }
+}
+
+/* ---------- Chapters ---------- */
+.chapters {
+  position: relative;
+  background: var(--night);
+}
+
+.chapter {
+  position: relative;
+  background: var(--night);
+}
+
+.chapter__stage {
+  position: relative;
+  height: 100svh;
+  min-height: 34rem;
+  overflow: hidden;
+}
+
+.chapter__scene {
+  position: absolute;
+  inset: 0;
+  aspect-ratio: auto;
+}
+
+.chapter__veil {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+  background: linear-gradient(0deg, rgb(12 8 6 / 0.92) 0%, rgb(12 8 6 / 0.6) 38%, transparent 70%);
+}
+
+@media (min-width: 60rem) {
+  .chapter__veil--left {
+    background:
+      linear-gradient(90deg, rgb(12 8 6 / 0.88) 0%, rgb(12 8 6 / 0.55) 34%, transparent 62%),
+      linear-gradient(0deg, rgb(12 8 6 / 0.5), transparent 40%);
+  }
+
+  .chapter__veil--right {
+    background:
+      linear-gradient(270deg, rgb(12 8 6 / 0.88) 0%, rgb(12 8 6 / 0.55) 34%, transparent 62%),
+      linear-gradient(0deg, rgb(12 8 6 / 0.5), transparent 40%);
+  }
+}
+
+.chapter__copy {
+  position: absolute;
+  z-index: 7;
+  left: var(--gutter);
+  right: var(--gutter);
+  bottom: clamp(5.5rem, 10vh, 7rem);
+  max-width: 36rem;
+}
+
+@media (min-width: 60rem) {
+  .chapter__copy {
+    left: clamp(5rem, 8vw, 9rem);
+    right: auto;
+    bottom: auto;
+    top: 50%;
+    translate: 0 -50%;
+  }
+
+  .chapter__copy--right {
+    left: auto;
+    right: clamp(8rem, 12vw, 13rem);
+  }
+}
+
+.chapter__no {
+  font-family: var(--font-inscription);
+  font-size: var(--step--1);
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--gold-leaf);
+  margin-bottom: 0.9rem;
+}
+
+.chapter__title {
+  font-size: clamp(2.8rem, 1.6rem + 5.5vw, 7rem);
+  font-weight: 500;
+  line-height: 0.95;
+  letter-spacing: -0.01em;
+  margin-bottom: 1rem;
+  color: var(--on-dark);
+}
+
+.chapter__summary {
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  line-height: 1.35;
+  color: var(--on-dark);
+  max-width: 32ch;
+}
+
+.chapter__status {
+  font-size: var(--step--1);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--on-dark-soft);
+  margin-bottom: 1.4rem;
+}
+
+.chapter__status:empty {
+  display: none;
+}
+
+.chapter__plaque {
+  position: absolute;
+  z-index: 7;
+  right: clamp(6rem, 9vw, 10rem);
+  bottom: clamp(1.5rem, 4vh, 3rem);
+  display: none;
+}
+
+.chapter__plaque .plaque {
+  margin: 0;
+  width: 18rem;
+}
+
+@media (min-width: 60rem) {
+  .chapter__plaque {
+    display: block;
+  }
+
+  .chapter__copy--right ~ .chapter__plaque {
+    right: auto;
+    left: clamp(1.5rem, 4vw, 4rem);
+  }
+}
+
+/* Sequenced mode: one pinned stage, chapters stacked and wiped in. */
+.chapters.is-sequenced {
+  height: 100vh;
+  overflow: hidden;
+}
+
+.chapters.is-sequenced .chapter {
+  position: absolute;
+  inset: 0;
+}
+
+.chapters.is-sequenced .chapter__stage {
+  height: 100%;
+  min-height: 0;
+}
+
+.chapters.is-sequenced .chapter.is-wiped {
+  -webkit-mask-image: url('/brush-wipe.webp');
+  mask-image: url('/brush-wipe.webp');
+  -webkit-mask-size: 300% 100%;
+  mask-size: 300% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: var(--wipe, 100%) 0;
+  mask-position: var(--wipe, 100%) 0;
+}
+
+/* ---------- Chapter rail ---------- */
+.rail {
+  display: none;
+}
+
+.rail.is-ready {
+  display: block;
+  position: fixed;
+  z-index: 30;
+  right: clamp(1rem, 2vw, 2rem);
+  top: 50%;
+  translate: 0 -50%;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity var(--dur) var(--ease-gallery),
+    visibility var(--dur);
+}
+
+.rail.is-visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.rail ol {
+  display: grid;
+  gap: 0.15rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rail a {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  gap: 0.7rem;
+  min-height: 32px;
+  color: rgb(243 233 210 / 0.55);
+  text-decoration: none;
+  font-family: var(--font-inscription);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-shadow:
+    0 0 8px rgb(12 8 6 / 0.9),
+    0 1px 2px rgb(12 8 6 / 0.9);
+}
+
+.rail__no {
+  width: 2.2rem;
+  text-align: right;
+}
+
+.rail__title {
+  opacity: 0;
+  translate: 6px 0;
+  transition:
+    opacity var(--dur) var(--ease-gallery),
+    translate var(--dur) var(--ease-gallery);
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+
+.rail a[aria-current='step'] {
+  color: var(--gold-hi);
+}
+
+.rail a[aria-current='step'] .rail__title,
+.rail a:hover .rail__title,
+.rail a:focus-visible .rail__title {
+  opacity: 1;
+  translate: 0 0;
+}
+
+.rail__progress {
+  display: none;
+}
+
+/* Phones: a slim progress line with the current chapter at the top. */
+@media (max-width: 59.99rem) {
+  .rail.is-ready {
+    left: 0;
+    right: 0;
+    translate: none;
+    top: 0;
+    translate: none;
+    padding: 0.6rem var(--gutter) 0.7rem;
+    background: linear-gradient(180deg, rgb(12 8 6 / 0.85), transparent);
+  }
+
+  .rail ol {
+    display: block;
+  }
+
+  .rail li {
+    display: none;
+  }
+
+  .rail li:has(a[aria-current='step']) {
+    display: block;
+  }
+
+  .rail a {
+    min-height: 0;
+    flex-direction: row;
+    color: var(--gold-hi);
+  }
+
+  .rail__no {
+    width: auto;
+    text-align: left;
+  }
+
+  .rail__title {
+    opacity: 1;
+    translate: none;
+  }
+
+  .rail__progress {
+    display: block;
+    height: 2px;
+    margin-top: 0.5rem;
+    background: rgb(243 233 210 / 0.18);
+  }
+
+  .rail__progress span {
+    display: block;
+    height: 100%;
+    width: 100%;
+    background: var(--gold-leaf);
+    transform-origin: 0 50%;
+    transform: scaleX(0);
+  }
+}
+
+/* ---------- Finale (Patronage over a painting) ---------- */
+.patronage {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.patronage__scene {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+
+.finale__scene {
+  position: absolute;
+  inset: 0;
+  aspect-ratio: auto;
+}
+
+.patronage__veil {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  background:
+    linear-gradient(180deg, rgb(12 8 6 / 0.55), rgb(12 8 6 / 0.82) 45%, rgb(12 8 6 / 0.94));
+}
+
+.patronage__inner {
+  position: relative;
+}
+
+/* ---------- Room hero ---------- */
+.room-hero {
+  position: relative;
+  height: min(88svh, 60rem);
+  min-height: 30rem;
+  overflow: hidden;
+  background: var(--night);
+}
+
+.room-hero .scene {
+  position: absolute;
+  inset: 0;
+  aspect-ratio: auto;
+  view-transition-name: painting;
+}
+
+.room-hero__copy {
+  position: absolute;
+  z-index: 7;
+  left: var(--gutter);
+  right: var(--gutter);
+  bottom: clamp(3rem, 8vh, 5rem);
+}
+
+.room-hero__copy .wrap {
+  width: auto;
+}
+
+.room-hero h1 {
+  font-size: clamp(2.8rem, 1.6rem + 5.5vw, 7rem);
+  font-weight: 500;
+  line-height: 0.95;
+  margin-bottom: 1rem;
+  color: var(--on-dark);
+  max-width: 14ch;
+}
+
+.room-hero .room__summary {
+  color: var(--on-dark);
+  max-width: 34ch;
+}
+
+.cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.room {
+  --brushed-color: var(--parchment);
+  z-index: 8;
+  padding-block: clamp(3rem, 6vw, 5rem) var(--section);
+}
+
+.room__body {
+  max-width: 54rem;
+}
+
+.room-hero .room__back {
+  color: var(--on-dark-soft);
+  margin-bottom: 1rem;
+}
+
+.room-hero .room__back:hover {
+  color: var(--gold-hi);
+}
+
+/* Tondi in the workshop reuse the scene component inside a round frame. */
+.tondo .scene {
+  border-radius: 50%;
+}
+
+/* Keep the masthead legible over bright skies. */
+.masthead::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 -2rem;
+  z-index: -1;
+  background: linear-gradient(180deg, rgb(12 8 6 / 0.6), transparent);
+  pointer-events: none;
+}
+
+.masthead--light::before {
+  display: none;
+}

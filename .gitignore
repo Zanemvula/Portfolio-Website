@@ -1,49 +1,30 @@
-```
 # Dependencies
 node_modules/
 
-# Environment
+# Build output
+dist/
+.astro/
+
+# Secrets — never commit
 .env
-.env.local
 .env.*
+!.env.example
 
-# Logs and temp files
+# Generated media (lives in gs://ntsikagqiba-assets, never in git)
+.cache/
+out/
+
+# Lighthouse CI reports
+.lighthouseci/
+
+# Logs / OS / editors
 *.log
-*.tmp
-
-# Editors
+.DS_Store
+Thumbs.db
 .vscode/
 .idea/
 
-# Python
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-venv/
-.venv/
-.env
-.env.local
-.env.*
-.mypy_cache/
-.pytest_cache/
-.coverage
-coverage/
-htmlcov/
-
-# Build outputs
-dist/
-build/
-*.egg-info/
-.eggs/
-
-# Node.js
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# OS generated files
-.DS_Store
-Thumbs.db
-```
+# Art inbox (your ChatGPT exports) and local previews — the bucket is the source of truth
+art/
+public/paintings/
+content/paintings.local.json

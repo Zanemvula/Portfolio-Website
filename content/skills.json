@@ -1,0 +1,106 @@
+[
+  {
+    "id": "cloud",
+    "title": "Cloud",
+    "order": 1,
+    "blurb": "Production workloads across three providers, with Cloudflare at the edge.",
+    "items": [
+      {
+        "name": "AWS",
+        "level": "practised"
+      },
+      {
+        "name": "Oracle Cloud (OCI)",
+        "level": "practised"
+      },
+      {
+        "name": "Google Cloud (GCP)",
+        "level": "practised"
+      },
+      {
+        "name": "Cloudflare",
+        "level": "practised"
+      }
+    ],
+    "scene": {
+      "prompt": "A circular tondo of a celestial sphere above a city of terracotta rooftops, three luminous clouds drifting across a lapis-blue sky, an armillary sphere of brass rings in the foreground catching warm light",
+      "revision": 1,
+      "alt": "Tondo of an armillary sphere beneath three luminous clouds over terracotta rooftops.",
+      "format": "square"
+    }
+  },
+  {
+    "id": "systems",
+    "title": "Systems",
+    "order": 2,
+    "blurb": "The machines and networks underneath.",
+    "items": [
+      {
+        "name": "Linux",
+        "level": "practised"
+      },
+      {
+        "name": "Networking",
+        "level": "practised"
+      }
+    ],
+    "scene": {
+      "prompt": "A circular tondo of an aqueduct and stone water channels branching across a valley, water flowing through arches and sluice gates, master masons' tools resting on a ledge, morning light",
+      "revision": 1,
+      "alt": "Tondo of a stone aqueduct whose channels branch across a valley.",
+      "format": "square"
+    }
+  },
+  {
+    "id": "delivery",
+    "title": "Delivery",
+    "order": 3,
+    "blurb": "Packaging, testing and shipping software.",
+    "items": [
+      {
+        "name": "Docker",
+        "level": "practised"
+      },
+      {
+        "name": "CI/CD with GitHub Actions",
+        "level": "practised"
+      },
+      {
+        "name": "Playwright and Lighthouse budgets",
+        "level": "practised"
+      }
+    ],
+    "scene": {
+      "prompt": "A circular tondo of a Renaissance harbour at dawn, identical wooden crates being loaded from a stone quay onto a sailing ship, ropes and pulleys, apprentices at work, gold light on the water",
+      "revision": 1,
+      "alt": "Tondo of identical crates being loaded onto a ship from a stone quay at dawn.",
+      "format": "square"
+    }
+  },
+  {
+    "id": "business",
+    "title": "Business",
+    "order": 4,
+    "blurb": "Engineering with a commercial head.",
+    "items": [
+      {
+        "name": "BCom Information Systems",
+        "level": "practised"
+      },
+      {
+        "name": "BCom Honours Marketing",
+        "level": "practised"
+      },
+      {
+        "name": "Commercial background in paid media",
+        "level": "practised"
+      }
+    ],
+    "scene": {
+      "prompt": "A circular tondo of a merchant's counting house, open ledgers, a balance scale, bolts of dyed cloth and a window onto a busy piazza, rich vermilion and ochre, soft window light",
+      "revision": 1,
+      "alt": "Tondo of a merchant's counting house with ledgers, scales and dyed cloth.",
+      "format": "square"
+    }
+  }
+]

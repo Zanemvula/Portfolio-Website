@@ -1,0 +1,48 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { edition, known, roman, CLOUD_LABELS } from '../../lib/site';
+
+interface Props {
+  works: CollectionEntry<'projects'>[];
+}
+const { works } = Astro.props;
+---
+
+<section class="contents brushed-top" id="contents" aria-labelledby="contents-title">
+  <div class="wrap contents__grid">
+    <div class="contents__head" data-reveal>
+      <p class="eyebrow">{edition.name} · {edition.volume}</p>
+      <h2 id="contents-title">Contents</h2>
+      <p class="contents__intro">{edition.intro}</p>
+    </div>
+    <ol class="contents__list">
+      {
+        works.map((w) => (
+          <li data-reveal>
+            <a href={`#chapter-${w.id}`}>
+              <span class="contents__no">{roman(w.data.order)}</span>
+              <span class="contents__title">{w.data.title}</span>
+              <span class="contents__meta">
+                {[known(w.data.year), w.data.clouds.map((c) => CLOUD_LABELS[c]).join(' · ')].filter(Boolean).join(' — ')}
+              </span>
+            </a>
+          </li>
+        ))
+      }
+      <li data-reveal>
+        <a href="#crafts">
+          <span class="contents__no">✦</span>
+          <span class="contents__title">The Workshop</span>
+          <span class="contents__meta">Crafts · Provenance · Apprenticeship</span>
+        </a>
+      </li>
+      <li data-reveal>
+        <a href="#patronage">
+          <span class="contents__no">✦</span>
+          <span class="contents__title">Patronage</span>
+          <span class="contents__meta">Commission the next work</span>
+        </a>
+      </li>
+    </ol>
+  </div>
+</section>

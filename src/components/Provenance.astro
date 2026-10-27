@@ -1,0 +1,48 @@
+---
+import { site, known, formatMonth } from '../lib/site';
+
+const range = (start: string, end: string) => {
+  const s = known(start);
+  const e = end === 'present' ? 'present' : formatMonth(end);
+  return s ? `${formatMonth(s)} – ${e}` : e === 'present' ? 'Current' : e;
+};
+---
+
+<section class="provenance" aria-labelledby="provenance-title">
+  <div class="wrap provenance__grid">
+    <div>
+      <p class="eyebrow">Provenance</p>
+      <h2 id="provenance-title">Where the work was made</h2>
+      <ol class="ledger-list">
+        {
+          site.experience.map((e) => (
+            <li>
+              <span class="when">{range(e.start, e.end)}</span>
+              <span class="what">
+                {e.title}
+                <span class="where">{[e.organisation, e.place].filter(Boolean).join(', ')}</span>
+              </span>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+    <div>
+      <p class="eyebrow">Schooling</p>
+      <h2>Wits</h2>
+      <ul class="ledger-list">
+        {
+          site.education.map((e) => (
+            <li>
+              <span class="when">{known(e.year) ?? ''}</span>
+              <span class="what">
+                {e.qualification}
+                <span class="where">{e.institution}</span>
+              </span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+</section>

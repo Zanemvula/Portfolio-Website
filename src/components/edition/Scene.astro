@@ -1,0 +1,62 @@
+---
+/**
+ * A painted scene made of aligned layers (back to front). Each layer carries
+ * data-depth so the motion script can give it parallax. Until the art exists,
+ * a sinopia — the red-ochre under-drawing beneath a fresco — stands in, also
+ * in two layers so the depth still reads.
+ */
+import type { Scene } from '../../lib/scene-schema';
+import { sceneSources } from '../../lib/site';
+
+interface Props {
+  id: string;
+  scene: Scene;
+  sizes?: string;
+  priority?: boolean;
+  class?: string;
+  /** Name the scene so the view-transition script can find it. */
+  slug?: string;
+}
+const { id, scene, sizes = '100vw', priority = false, class: className, slug } = Astro.props;
+const order = scene.layers.map((l) => l.id);
+const src = sceneSources(id, order);
+const depthOf = (layerId: string) => scene.layers.find((l) => l.id === layerId)?.depth ?? 0;
+---
+
+<div
+  class:list={['scene', `scene--${scene.format}`, `scene--focus-${scene.focus}`, !src && 'scene--sinopia', className]}
+  role="img"
+  aria-label={scene.alt}
+  data-scene
+  data-painting={slug}
+>
+  {
+    src ? (
+      src.layers.map((layer, i) => (
+        <picture class="scene__layer" data-depth={depthOf(layer.id)} aria-hidden="true">
+          <source type="image/avif" srcset={layer.avif} sizes={sizes} />
+          <source type="image/webp" srcset={layer.webp} sizes={sizes} />
+          <img
+            src={layer.src}
+            alt=""
+            width={src.width}
+            height={src.height}
+            loading={priority ? 'eager' : 'lazy'}
+            decoding={priority && i === 0 ? 'sync' : 'async'}
+            fetchpriority={priority && i === 0 ? 'high' : 'auto'}
+          />
+        </picture>
+      ))
+    ) : (
+      <>
+        <svg class="scene__layer" data-depth="0" viewBox="0 0 1536 1024" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+          <use href="#sinopia-architecture" />
+        </svg>
+        <svg class="scene__layer" data-depth="0.55" viewBox="0 0 1536 1024" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+          <use href="#sinopia-figures" />
+        </svg>
+      </>
+    )
+  }
+  <span class="scene__varnish" aria-hidden="true"></span>
+</div>

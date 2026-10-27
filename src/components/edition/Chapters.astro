@@ -1,0 +1,62 @@
+---
+/**
+ * The works as a sequence of full-screen painted chapters. Without motion they
+ * stack as ordinary full-height sections; gallery-motion.ts pins them into one
+ * stage and plays them as a scroll-scrubbed sequence with brushstroke wipes.
+ */
+import type { CollectionEntry } from 'astro:content';
+import Scene from './Scene.astro';
+import Plaque from '../Plaque.astro';
+import { known, roman, CLOUD_LABELS, STATUS_LABELS } from '../../lib/site';
+
+interface Props {
+  works: CollectionEntry<'projects'>[];
+}
+const { works } = Astro.props;
+
+const medium = (w: CollectionEntry<'projects'>) => {
+  const clouds: string[] = w.data.clouds.map((c) => CLOUD_LABELS[c]);
+  const stack = w.data.stack.filter((s) => !clouds.includes(s));
+  return [...clouds, ...stack].slice(0, 4).join(', ');
+};
+---
+
+<div class="chapters" data-chapters>
+  {
+    works.map((w, i) => (
+      <section
+        class="chapter on-dark"
+        id={`chapter-${w.id}`}
+        aria-labelledby={`chapter-${w.id}-title`}
+        data-chapter
+        data-no={roman(w.data.order)}
+        data-title={w.data.title}
+      >
+        <div class="chapter__stage">
+          <Scene id={w.id} scene={w.data.scene} slug={w.id} class="chapter__scene" sizes="100vw" />
+          <div class:list={['chapter__veil', `chapter__veil--${w.data.scene.focus === 'left' ? 'right' : 'left'}`]} aria-hidden="true" />
+          <div class:list={['chapter__copy', w.data.scene.focus === 'left' && 'chapter__copy--right']}>
+            <p class="chapter__no" data-chapter-line>
+              Chapter {roman(w.data.order)} <span aria-hidden="true">·</span> {i + 1} of {works.length}
+            </p>
+            <h2 class="chapter__title" id={`chapter-${w.id}-title`} data-chapter-line>
+              {w.data.title}
+            </h2>
+            <p class="chapter__summary" data-chapter-line>
+              {w.data.summary}
+            </p>
+            <p class="chapter__status" data-chapter-line>
+              {[STATUS_LABELS[w.data.status], w.data.organisation].filter(Boolean).join(' · ')}
+            </p>
+            <a class="btn btn--gilt" href={`/works/${w.id}/`} data-chapter-line data-slug={w.id}>
+              Step into the painting →
+            </a>
+          </div>
+          <div class="chapter__plaque" data-chapter-plaque>
+            <Plaque no={roman(w.data.order)} title={w.data.title} meta={[known(w.data.year), medium(w)]} headingLevel="p" />
+          </div>
+        </div>
+      </section>
+    ))
+  }
+</div>

@@ -1,0 +1,42 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import Frame from './Frame.astro';
+import Scene from './edition/Scene.astro';
+
+interface Props {
+  crafts: CollectionEntry<'crafts'>[];
+}
+const { crafts } = Astro.props;
+const learning = crafts.some((c) => c.data.items.some((i) => i.level === 'apprenticeship'));
+---
+
+<section class="crafts brushed-top" id="crafts" aria-labelledby="crafts-title">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">The Workshop</p>
+      <h2 id="crafts-title">The Hall of Crafts</h2>
+      <p>The disciplines behind the works.{learning && ' Marks show where I am still in apprenticeship.'}</p>
+    </div>
+    <ul class="crafts__grid">
+      {
+        crafts.map((c) => (
+          <li class="craft" data-reveal>
+            <Frame shape="tondo">
+              <Scene id={`craft-${c.id}`} scene={c.data.scene} sizes="14rem" />
+            </Frame>
+            <h3>{c.data.title}</h3>
+            <p class="craft__blurb">{c.data.blurb}</p>
+            <ul>
+              {c.data.items.map((item) => (
+                <li>
+                  {item.name}
+                  {item.level === 'apprenticeship' && <span class="mark-apprentice">in apprenticeship</span>}
+                </li>
+              ))}
+            </ul>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>

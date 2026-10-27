@@ -1,0 +1,357 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  background: var(--night);
+  color-scheme: light;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  line-height: 1.6;
+  color: var(--ink);
+  background: var(--parchment);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+img,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+}
+
+img {
+  height: auto;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.08;
+  margin: 0 0 0.5em;
+  text-wrap: balance;
+}
+
+p {
+  margin: 0 0 1em;
+  text-wrap: pretty;
+}
+
+a {
+  color: var(--lapis);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+a:hover {
+  text-decoration-thickness: 2px;
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+
+.on-dark {
+  --focus: var(--gold-hi);
+  color: var(--on-dark);
+}
+
+.on-dark a:not([class]) {
+  color: var(--lapis-light);
+}
+
+.on-dark .letter a:not([class]) {
+  color: var(--lapis);
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  left: var(--gutter);
+  top: -100px;
+  z-index: 100;
+  padding: 0.6rem 1rem;
+  background: var(--parchment);
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.skip-link:focus {
+  top: 0.75rem;
+}
+
+.wrap {
+  width: min(100% - 2 * var(--gutter), 78rem);
+  margin-inline: auto;
+}
+
+.prose {
+  max-width: var(--measure);
+}
+
+.prose ul,
+.prose ol {
+  padding-left: 1.2em;
+}
+
+.prose li + li {
+  margin-top: 0.35em;
+}
+
+.prose code {
+  font-size: 0.9em;
+  background: var(--parchment-deep);
+  padding: 0.05em 0.3em;
+}
+
+/* Inscription: engraved capitals for plaques, eyebrows and labels */
+.inscription {
+  font-family: var(--font-inscription);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.eyebrow {
+  font-family: var(--font-inscription);
+  font-size: var(--step--1);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--bronze);
+  margin: 0 0 1rem;
+}
+
+.on-dark .eyebrow {
+  color: var(--gold-leaf);
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55em;
+  min-height: 48px;
+  padding: 0.7rem 1.35rem;
+  border: 1px solid currentColor;
+  border-radius: var(--radius);
+  font-family: var(--font-body);
+  font-size: var(--step--1);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color var(--dur) var(--ease-gallery),
+    color var(--dur) var(--ease-gallery),
+    border-color var(--dur) var(--ease-gallery);
+}
+
+.btn svg {
+  width: 1.15em;
+  height: 1.15em;
+  flex: none;
+}
+
+.btn--gilt {
+  color: var(--engraving);
+  border-color: var(--gold-lo);
+  background: linear-gradient(180deg, var(--gold-hi), var(--gold-leaf) 55%, #a9832f);
+}
+
+.btn--gilt:hover {
+  background: linear-gradient(180deg, #f8e6a8, var(--gold-hi) 55%, var(--gold-leaf));
+}
+
+.on-dark .btn--ghost,
+.btn--ghost {
+  color: inherit;
+  background: transparent;
+}
+
+.btn--ghost:hover {
+  background: rgb(241 217 138 / 0.12);
+}
+
+.btn--ink {
+  color: var(--parchment);
+  background: var(--ink);
+  border-color: var(--ink);
+}
+
+.btn--ink:hover {
+  background: var(--oxblood);
+  border-color: var(--oxblood);
+}
+
+/* Header */
+.masthead {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 20;
+  padding-block: 1rem;
+}
+
+.masthead__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.masthead__mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--on-dark);
+  text-decoration: none;
+  font-family: var(--font-inscription);
+  letter-spacing: 0.18em;
+  font-size: var(--step--1);
+}
+
+.masthead__mark svg {
+  width: 34px;
+  height: 34px;
+}
+
+.masthead nav ul {
+  display: flex;
+  gap: clamp(0.75rem, 2vw, 2rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.masthead nav a {
+  color: var(--on-dark-soft);
+  text-decoration: none;
+  font-size: var(--step--1);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  display: inline-block;
+  padding-block: 0.75rem;
+}
+
+.masthead nav a:hover {
+  color: var(--gold-hi);
+}
+
+.masthead--light .masthead__mark,
+.masthead--light nav a {
+  color: var(--ink);
+}
+
+.masthead--light .masthead__mark:hover,
+.masthead--light nav a:hover {
+  color: var(--oxblood);
+}
+
+.masthead--light {
+  --focus: var(--lapis);
+}
+
+@media (max-width: 47.99rem) {
+  .masthead nav .nav-wide {
+    display: none;
+  }
+}
+
+/* Footer */
+.colophon {
+  background: var(--night);
+  color: var(--on-dark-soft);
+  padding-block: 3rem 6rem;
+  font-size: var(--step--1);
+}
+
+.colophon a {
+  color: var(--on-dark);
+}
+
+.colophon__inner {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem 2rem;
+}
+
+.colophon p {
+  margin: 0;
+}
+
+/* Cross-document view transitions: the clicked painting becomes the room's painting. */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-group(painting) {
+  animation-duration: 700ms;
+  animation-timing-function: var(--ease-gallery);
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 420ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  @view-transition {
+    navigation: none;
+  }
+}
+
+@media (max-width: 35.99rem) {
+  .nav-wide-mark {
+    display: none;
+  }
+}
+
+/* Lenis smooth scroll (desktop, fine pointer only) */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}

@@ -1,0 +1,868 @@
+/* ============ Gilded frame ============ */
+.frame {
+  --fw: clamp(14px, 1.2rem + 0.6vw, 26px);
+  position: relative;
+  padding: var(--fw);
+  background:
+    linear-gradient(
+      135deg,
+      var(--gold-hi) 0%,
+      var(--gold-leaf) 18%,
+      var(--gold-lo) 34%,
+      var(--gold-leaf) 50%,
+      var(--gold-hi) 62%,
+      var(--gold-leaf) 78%,
+      var(--gold-lo) 100%
+    );
+  box-shadow:
+    0 0 0 1px #4d3710,
+    inset 0 0 0 2px rgb(255 240 190 / 0.55),
+    inset 0 0 0 5px rgb(90 62 16 / 0.55),
+    0 2px 0 1px #2a1d08,
+    0 34px 60px -22px rgb(0 0 0 / 0.8);
+  transition:
+    transform var(--dur-slow) var(--ease-gallery),
+    box-shadow var(--dur-slow) var(--ease-gallery);
+}
+
+/* Bead-and-reel moulding */
+.frame::before {
+  content: '';
+  position: absolute;
+  inset: calc(var(--fw) * 0.42);
+  border: 3px dotted rgb(255 236 170 / 0.75);
+  pointer-events: none;
+}
+
+/* Sight edge: the inner lip the canvas sits behind */
+.frame__sight {
+  position: relative;
+  overflow: hidden;
+  background: #1b130b;
+  box-shadow:
+    0 0 0 2px #5c4212,
+    0 0 0 4px rgb(255 236 170 / 0.5);
+}
+
+.frame__sight::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  box-shadow:
+    inset 0 0 18px rgb(0 0 0 / 0.65),
+    inset 0 0 2px rgb(0 0 0 / 0.9);
+  pointer-events: none;
+}
+
+.frame__corner {
+  position: absolute;
+  z-index: 1;
+  width: calc(var(--fw) * 2.2);
+  height: calc(var(--fw) * 2.2);
+  color: var(--gold-hi);
+  pointer-events: none;
+  filter: drop-shadow(0 1px 0 rgb(60 40 8 / 0.8));
+}
+
+.frame__corner--tl {
+  top: calc(var(--fw) * -0.2);
+  left: calc(var(--fw) * -0.2);
+}
+
+.frame__corner--tr {
+  top: calc(var(--fw) * -0.2);
+  right: calc(var(--fw) * -0.2);
+  transform: scaleX(-1);
+}
+
+.frame__corner--bl {
+  bottom: calc(var(--fw) * -0.2);
+  left: calc(var(--fw) * -0.2);
+  transform: scaleY(-1);
+}
+
+.frame__corner--br {
+  bottom: calc(var(--fw) * -0.2);
+  right: calc(var(--fw) * -0.2);
+  transform: scale(-1, -1);
+}
+
+/* Raking light that follows the pointer (position set by gallery-motion.ts) */
+.frame__light {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(
+    circle at var(--lx, 50%) var(--ly, 30%),
+    rgb(255 235 180 / 0.28),
+    transparent 55%
+  );
+  mix-blend-mode: soft-light;
+  transition: opacity var(--dur) var(--ease-gallery);
+}
+
+/* ============ Canvas ============ */
+.canvas {
+  aspect-ratio: 2 / 3;
+  width: 100%;
+}
+
+.canvas img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.canvas--unpainted {
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(120% 90% at 30% 20%, rgb(214 178 110 / 0.35), transparent 60%),
+    radial-gradient(90% 70% at 80% 90%, rgb(80 20 15 / 0.55), transparent 70%),
+    repeating-linear-gradient(115deg, rgb(255 255 255 / 0.02) 0 2px, transparent 2px 5px),
+    linear-gradient(160deg, #6b4a2a, #3b2616 55%, #24170d);
+}
+
+.canvas--unpainted span {
+  font-family: var(--font-inscription);
+  font-size: 0.72rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: rgb(243 233 210 / 0.7);
+  text-align: center;
+  padding: 1rem;
+}
+
+/* ============ Brass plaque ============ */
+.plaque {
+  position: relative;
+  display: grid;
+  gap: 0.15rem;
+  width: min(100%, 22rem);
+  margin: 1.6rem auto 0;
+  padding: 0.85rem 1.6rem 0.9rem;
+  text-align: center;
+  color: var(--engraving);
+  background:
+    radial-gradient(circle at 0.7rem 50%, #6b4f1c 0 2px, #e9d38f 2.5px 3.5px, transparent 4px),
+    radial-gradient(circle at calc(100% - 0.7rem) 50%, #6b4f1c 0 2px, #e9d38f 2.5px 3.5px, transparent 4px),
+    linear-gradient(180deg, var(--brass-hi), var(--brass) 45%, #a9822f 100%);
+  border: 1px solid #5c4212;
+  border-radius: 2px;
+  box-shadow:
+    inset 0 1px 0 rgb(255 248 220 / 0.7),
+    inset 0 -1px 0 rgb(70 48 10 / 0.5),
+    0 6px 14px -6px rgb(0 0 0 / 0.7);
+  text-shadow: 0 1px 0 rgb(255 245 210 / 0.45);
+}
+
+.plaque__no {
+  font-family: var(--font-inscription);
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+}
+
+.plaque__title {
+  font-family: var(--font-inscription);
+  font-weight: 600;
+  font-size: clamp(1rem, 0.9rem + 0.4vw, 1.2rem);
+  letter-spacing: 0.1em;
+  line-height: 1.25;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.plaque__meta {
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+}
+
+/* ============ Section heads ============ */
+.section-head {
+  max-width: 44rem;
+  margin: 0 auto clamp(3rem, 6vw, 5rem);
+  text-align: center;
+}
+
+.section-head h2 {
+  font-size: var(--step-4);
+  font-weight: 500;
+}
+
+.section-head p:last-child {
+  font-size: var(--step-1);
+  font-family: var(--font-display);
+  font-style: italic;
+  margin: 0;
+}
+
+/* ============ The Hall of Crafts ============ */
+.crafts {
+  padding-block: var(--section);
+  background:
+    radial-gradient(80% 60% at 50% 0%, rgb(255 255 255 / 0.5), transparent 70%),
+    var(--parchment);
+}
+
+.crafts__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: clamp(2.5rem, 5vw, 4rem) clamp(1.5rem, 3vw, 3rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.craft {
+  text-align: center;
+}
+
+.tondo {
+  --fw: clamp(12px, 0.8rem + 0.4vw, 18px);
+  width: min(14rem, 80%);
+  margin: 0 auto 1.4rem;
+  border-radius: 50%;
+}
+
+.tondo::before {
+  border-radius: 50%;
+}
+
+.tondo .frame__sight {
+  border-radius: 50%;
+}
+
+.tondo .canvas {
+  aspect-ratio: 1;
+}
+
+.craft h3 {
+  font-size: var(--step-2);
+  margin-bottom: 0.25rem;
+}
+
+.craft__blurb {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: var(--step-1);
+  color: var(--ink-soft);
+  margin-bottom: 1rem;
+}
+
+.craft ul {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.craft li {
+  font-size: var(--step--1);
+}
+
+.mark-apprentice {
+  display: inline-block;
+  margin-left: 0.4rem;
+  padding: 0.05rem 0.45rem;
+  border: 1px solid var(--bronze);
+  border-radius: 999px;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: var(--bronze);
+  white-space: nowrap;
+}
+
+/* ============ Provenance (career) ============ */
+.provenance {
+  padding-block: 0 var(--section);
+  background: var(--parchment);
+}
+
+.provenance__grid {
+  display: grid;
+  gap: 3rem;
+}
+
+@media (min-width: 56rem) {
+  .provenance__grid {
+    grid-template-columns: 1.4fr 1fr;
+  }
+}
+
+.ledger-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--parchment-edge);
+}
+
+.ledger-list li {
+  display: grid;
+  grid-template-columns: 9.5rem 1fr;
+  gap: 0.25rem 1.25rem;
+  padding-block: 1rem;
+  border-bottom: 1px solid var(--parchment-edge);
+}
+
+.ledger-list .when {
+  font-size: var(--step--1);
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+  padding-top: 0.2rem;
+}
+
+.ledger-list .what {
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.ledger-list .where {
+  display: block;
+  font-family: var(--font-body);
+  font-size: var(--step--1);
+  font-weight: 400;
+  color: var(--ink-soft);
+  margin-top: 0.15rem;
+}
+
+@media (max-width: 30rem) {
+  .ledger-list li {
+    grid-template-columns: 1fr;
+  }
+}
+
+.provenance h2 {
+  font-size: var(--step-3);
+  font-weight: 500;
+}
+
+/* ============ The Apprenticeship ============ */
+.apprenticeship {
+  padding-block: var(--section);
+  background: var(--wall-deep);
+}
+
+.folio {
+  max-width: 52rem;
+  margin: 0 auto;
+  padding: clamp(2rem, 5vw, 4rem);
+  color: var(--ink);
+  background:
+    radial-gradient(120% 80% at 50% 0%, #fbf4e2, transparent 70%),
+    var(--parchment);
+  border: 1px solid var(--parchment-edge);
+  box-shadow:
+    0 0 0 8px var(--parchment-deep),
+    0 0 0 9px var(--gold-lo),
+    0 40px 80px -30px rgb(0 0 0 / 0.8);
+}
+
+.folio h2 {
+  font-size: var(--step-3);
+  font-weight: 500;
+  text-align: center;
+}
+
+.folio__intro {
+  text-align: center;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: var(--step-1);
+  color: var(--ink-soft);
+  margin-bottom: 2rem;
+}
+
+.study {
+  display: grid;
+  gap: 0.35rem;
+  padding-block: 1.25rem;
+  border-top: 1px solid var(--parchment-edge);
+}
+
+.study:last-child {
+  border-bottom: 1px solid var(--parchment-edge);
+}
+
+.study__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+}
+
+.study h3 {
+  font-size: var(--step-2);
+  margin: 0;
+}
+
+.study__status {
+  font-family: var(--font-inscription);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--oxblood);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.study__status::before {
+  content: '';
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--oxblood);
+  box-shadow: 0 0 0 3px rgb(110 31 27 / 0.18);
+}
+
+.study p {
+  margin: 0;
+  font-size: var(--step--1);
+  color: var(--ink-soft);
+}
+
+/* ============ Patronage ============ */
+.patronage {
+  padding-block: var(--section);
+  background:
+    radial-gradient(70% 60% at 50% 100%, rgb(201 162 74 / 0.16), transparent 70%),
+    var(--night);
+}
+
+.patronage .section-head p:last-child {
+  color: var(--on-dark-soft);
+}
+
+.patronage__grid {
+  display: grid;
+  gap: 3rem;
+  align-items: start;
+}
+
+@media (min-width: 56rem) {
+  .patronage__grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+  }
+}
+
+.channels {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.channel {
+  display: grid;
+  grid-template-columns: 2.5rem 1fr auto;
+  align-items: center;
+  gap: 1rem;
+  min-height: 64px;
+  padding: 0.9rem 1.1rem;
+  border: 1px solid rgb(201 162 74 / 0.4);
+  color: var(--on-dark);
+  text-decoration: none;
+  transition:
+    background-color var(--dur) var(--ease-gallery),
+    border-color var(--dur) var(--ease-gallery);
+}
+
+.on-dark .channel {
+  color: var(--on-dark);
+}
+
+.channel:hover {
+  background: rgb(201 162 74 / 0.1);
+  border-color: var(--gold-leaf);
+}
+
+.channel svg {
+  width: 1.6rem;
+  height: 1.6rem;
+  color: var(--gold-leaf);
+}
+
+.channel strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.channel span {
+  font-size: var(--step--1);
+  color: var(--on-dark-soft);
+  word-break: break-word;
+}
+
+.channel__arrow {
+  color: var(--gold-leaf);
+}
+
+/* Contact form */
+.letter {
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  color: var(--ink);
+  background: var(--parchment);
+  border: 1px solid var(--parchment-edge);
+  box-shadow:
+    0 0 0 6px var(--parchment-deep),
+    0 0 0 7px var(--gold-lo);
+  --focus: var(--lapis);
+}
+
+.letter h3 {
+  font-size: var(--step-2);
+}
+
+.field {
+  display: grid;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+}
+
+.field label {
+  font-size: var(--step--1);
+  font-weight: 600;
+}
+
+.field input,
+.field textarea {
+  width: 100%;
+  min-height: 48px;
+  padding: 0.7rem 0.8rem;
+  font: inherit;
+  color: var(--ink);
+  background: #fffaf0;
+  border: 1px solid #9c8a66;
+  border-radius: var(--radius);
+}
+
+.field textarea {
+  min-height: 9rem;
+  resize: vertical;
+}
+
+.field--trap {
+  position: absolute;
+  left: -10000px;
+}
+
+.form-status {
+  min-height: 1.5em;
+  margin: 1rem 0 0;
+  font-size: var(--step--1);
+}
+
+.form-status[data-state='ok'] {
+  color: #1f5a37;
+}
+
+.form-status[data-state='error'] {
+  color: var(--oxblood);
+}
+
+/* ============ Project room ============ */
+.room {
+  padding-block: 7rem var(--section);
+  background: var(--parchment);
+}
+
+.room__grid {
+  display: grid;
+  gap: clamp(2.5rem, 5vw, 5rem);
+}
+
+@media (min-width: 60rem) {
+  .room__grid {
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    align-items: start;
+  }
+
+  .room__painting {
+    position: sticky;
+    top: 2rem;
+  }
+}
+
+.room__painting {
+  padding: clamp(1.5rem, 4vw, 3rem);
+  background-color: var(--wall);
+  background-image: url('/damask.svg');
+  background-size: 180px 180px;
+}
+
+.room__painting .frame {
+  max-width: 26rem;
+  margin-inline: auto;
+}
+
+.room__painting .canvas img,
+.room__painting .canvas--unpainted {
+  view-transition-name: painting;
+}
+
+.room__back {
+  display: inline-block;
+  margin-bottom: 2rem;
+  font-size: var(--step--1);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--oxblood);
+  text-decoration: none;
+  padding-block: 0.75rem;
+}
+
+.room h1 {
+  font-size: var(--step-4);
+  font-weight: 500;
+  margin-bottom: 0.75rem;
+}
+
+.room__summary {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: var(--step-2);
+  line-height: 1.25;
+  color: var(--ink-soft);
+  margin-bottom: 1.5rem;
+}
+
+.room__facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: 1rem;
+  margin: 0 0 2.5rem;
+  padding: 1.25rem 0;
+  border-block: 1px solid var(--parchment-edge);
+}
+
+.room__facts dt {
+  font-family: var(--font-inscription);
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--bronze);
+}
+
+.room__facts dd {
+  margin: 0.2rem 0 0;
+  font-weight: 500;
+}
+
+.room section {
+  margin-bottom: 3rem;
+}
+
+.room h2 {
+  font-size: var(--step-2);
+  font-weight: 600;
+  color: var(--oxblood);
+  border-bottom: 1px solid var(--parchment-edge);
+  padding-bottom: 0.4rem;
+}
+
+.pending {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: var(--step-1);
+  color: var(--ink-soft);
+}
+
+.notice {
+  padding: 1rem 1.25rem;
+  border-left: 3px solid var(--bronze);
+  background: var(--parchment-deep);
+  font-size: var(--step--1);
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.badges li {
+  padding: 0.35rem 0.75rem;
+  font-size: var(--step--1);
+  font-weight: 500;
+  color: var(--ink);
+  background: linear-gradient(180deg, #fbf3df, var(--parchment-deep));
+  border: 1px solid var(--parchment-edge);
+  border-radius: 999px;
+}
+
+.room__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+/* Restoration log */
+.restoration {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-left: 2px solid var(--gold-leaf);
+}
+
+.restoration li {
+  position: relative;
+  padding: 0 0 1.25rem 1.5rem;
+}
+
+.restoration li::before {
+  content: '';
+  position: absolute;
+  left: -7px;
+  top: 0.45rem;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--parchment);
+  border: 2px solid var(--bronze);
+}
+
+.restoration time {
+  display: block;
+  font-family: var(--font-inscription);
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--bronze);
+}
+
+.room__nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 4rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--parchment-edge);
+}
+
+.room__nav a {
+  display: grid;
+  gap: 0.2rem;
+  max-width: 48%;
+  text-decoration: none;
+  color: var(--ink);
+}
+
+.room__nav a span {
+  font-family: var(--font-inscription);
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--bronze);
+}
+
+.room__nav a strong {
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+}
+
+.room__nav a:last-child {
+  text-align: right;
+  margin-left: auto;
+}
+
+/* Architecture plate */
+.plate {
+  margin: 0;
+  padding: clamp(1rem, 3vw, 1.75rem);
+  background: #fbf4e2;
+  border: 1px solid var(--parchment-edge);
+}
+
+.plate svg {
+  width: 100%;
+  height: auto;
+  color: var(--ink);
+}
+
+.plate figcaption {
+  margin-top: 0.75rem;
+  font-size: var(--step--1);
+  color: var(--ink-soft);
+}
+
+/* ============ Catalogue (plain list) ============ */
+.catalogue {
+  padding-block: 7rem var(--section);
+  background: var(--parchment);
+}
+
+.catalogue h1 {
+  font-size: var(--step-4);
+  font-weight: 500;
+}
+
+.catalogue__list {
+  margin: 2.5rem 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--parchment-edge);
+}
+
+.catalogue__list li {
+  display: grid;
+  grid-template-columns: 3rem 1fr;
+  gap: 0.25rem 1rem;
+  padding-block: 1.25rem;
+  border-bottom: 1px solid var(--parchment-edge);
+}
+
+.catalogue__list .no {
+  font-family: var(--font-inscription);
+  color: var(--bronze);
+  padding-top: 0.3rem;
+}
+
+.catalogue__list h2 {
+  font-size: var(--step-2);
+  margin: 0 0 0.25rem;
+}
+
+.catalogue__list h2 a {
+  color: var(--ink);
+  text-decoration-color: var(--gold-leaf);
+}
+
+.catalogue__list p {
+  margin: 0 0 0.35rem;
+}
+
+.catalogue__list .meta {
+  font-size: var(--step--1);
+  color: var(--ink-soft);
+}
+
+/* ============ 404 ============ */
+.lost {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 6rem var(--gutter);
+  background: var(--night);
+}
+
+.lost h1 {
+  font-size: var(--step-4);
+  font-weight: 500;
+}

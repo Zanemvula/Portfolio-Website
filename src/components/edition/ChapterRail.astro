@@ -1,0 +1,25 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { roman } from '../../lib/site';
+
+interface Props {
+  works: CollectionEntry<'projects'>[];
+}
+const { works } = Astro.props;
+---
+
+<nav class="rail" aria-label="Chapters" data-rail>
+  <ol>
+    {
+      works.map((w) => (
+        <li>
+          <a href={`#chapter-${w.id}`} data-rail-link={w.id}>
+            <span class="rail__no">{roman(w.data.order)}</span>
+            <span class="rail__title">{w.data.title}</span>
+          </a>
+        </li>
+      ))
+    }
+  </ol>
+  <span class="rail__progress" aria-hidden="true"><span data-rail-progress></span></span>
+</nav>

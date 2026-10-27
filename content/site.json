@@ -1,0 +1,73 @@
+{
+  "name": "Ntsika Gqiba",
+  "role": "Cloud & Software Engineer",
+  "headline": "Cloud & Software Engineer — AWS · Oracle Cloud · Google Cloud",
+  "valueStatement": "I build and run production systems on AWS, Oracle Cloud and Google Cloud.",
+  "location": "Johannesburg, South Africa",
+  "availability": "Open to remote Cloud, DevOps and Platform Engineering roles with EMEA and international teams.",
+  "url": "https://ntsikagqiba.com",
+  "description": "Ntsika Gqiba is a Cloud & Software Engineer in Johannesburg building and running production systems on AWS, Oracle Cloud and Google Cloud.",
+  "contact": {
+    "email": "ntsikanatural@gmail.com",
+    "whatsapp": "27815386865",
+    "whatsappMessage": "Hi Ntsika, I found your portfolio at ntsikagqiba.com and would like to talk.",
+    "booking": "https://calendly.com/ntsikanatural/free-strategy-session",
+    "formspreeId": "xnpppyez"
+  },
+  "social": {
+    "linkedin": "https://www.linkedin.com/in/ntsika-gqiba",
+    "github": "https://github.com/Zanemvula"
+  },
+  "cv": "https://storage.googleapis.com/ntsikagqiba-assets/cv/ntsika-gqiba-cv.pdf",
+  "assetsBase": "https://storage.googleapis.com/ntsikagqiba-assets",
+  "media": {
+    "videos": []
+  },
+  "experience": [
+    {
+      "title": "Software Engineer",
+      "organisation": "LNS Corporation",
+      "place": "Boksburg",
+      "start": "2026-09",
+      "end": "present"
+    },
+    {
+      "title": "Founder & Engineer",
+      "organisation": "Chatly (Vularis Pty Ltd)",
+      "start": "2026-06",
+      "end": "present"
+    },
+    {
+      "title": "Paid Ads Campaign Manager",
+      "organisation": "LNS Corporation",
+      "place": "Boksburg",
+      "start": "2025-11",
+      "end": "2026-09"
+    },
+    {
+      "title": "Junior Paid Media Specialist",
+      "organisation": "#HelloYes Marketing",
+      "start": "2024-11",
+      "end": "2025-10",
+      "place": "Bedfordview"
+    },
+    {
+      "title": "Freelance Cloud & Software Engineer",
+      "organisation": "Independent",
+      "start": "TODO: start month (YYYY-MM)",
+      "end": "present"
+    }
+  ],
+  "education": [
+    {
+      "qualification": "BCom Honours (Marketing)",
+      "institution": "University of the Witwatersrand",
+      "year": "2024"
+    },
+    {
+      "qualification": "BCom (Information Systems)",
+      "institution": "University of the Witwatersrand",
+      "year": "2023"
+    }
+  ]
+}
