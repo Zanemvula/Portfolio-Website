@@ -17,35 +17,19 @@
 
 <!-- BEGIN GENERATED: npm run todos -->
 
-## Content TODOs (65)
+## Content TODOs (32)
 
 _Facts only you can supply. Generated from /content — edit the content files, then re-run `npm run todos`._
 
 ### `content/projects/chatly.md`
 
-- [ ] L4: year(s), e.g. 2025 or 2025–present
-- [ ] L5: live | in-progress | paused | archived
-- [ ] L8: confirm whether Chatly is your own product, a client's or LNS's
-- [ ] L9: who owns Chatly?
-- [ ] L11: 2–3 sentences — who had what problem before Chatly?
-- [ ] L16: Google Cloud services used (e.g. which compute, database, queues)
-- [ ] L17: language / framework, payment provider
-- [ ] L19: public URL if one exists
-- [ ] L30: replace with the real architecture once you supply the services
-- [ ] L40: dated entries, e.g. { date: 2025-06, note: "Launched …" }
-- [ ] L45: what you built, in bullets — components you personally designed, built or run.
-- [ ] L46: architecture walk-through — how a message becomes a quote, then a payment.
+- [ ] L23: public URL if one exists
 
 ### `content/projects/comfy-shoes.md`
 
 - [ ] L4: year(s)
-- [ ] L11: 2–3 sentences — what did the brand need before the platform?
-- [ ] L15: storefront platform / framework, database, payments, CDN, monitoring
-- [ ] L17: storefront URL (public site only)
-- [ ] L28: replace with the real architecture
-- [ ] L38: dated entries
-- [ ] L43: what you built, in bullets.
-- [ ] L44: how it is deployed, backed up and monitored.
+- [ ] L26: storefront URL once the cutover to comfyshoes.co.za is complete
+- [ ] L65: dated entries (launch, cutover to comfyshoes.co.za)
 
 ### `content/projects/crm-on-aws.md`
 
@@ -59,13 +43,8 @@ _Facts only you can supply. Generated from /content — edit the content files, 
 ### `content/projects/erpnext-rollout.md`
 
 - [ ] L4: year(s)
-- [ ] L5: live | in-progress
-- [ ] L11: 2–3 sentences — how were the branches run before ERPNext?
-- [ ] L17: VPS provider, OS, database, backups, what you automated
-- [ ] L29: hosting details
-- [ ] L43: dated entries
-- [ ] L48: hosting details (provider, sizing, backups).
-- [ ] L49: what you automated.
+- [ ] L46: dated entries
+- [ ] L55: hosting details (provider, sizing, backups) and what you automated.
 
 ### `content/projects/portfolio.md`
 
@@ -74,16 +53,10 @@ _Facts only you can supply. Generated from /content — edit the content files, 
 ### `content/projects/retailbridge.md`
 
 - [ ] L4: year(s)
-- [ ] L5: live | in-progress | paused
-- [ ] L9: who owns RetailBridge?
 - [ ] L10: where it runs
-- [ ] L11: 2–3 sentences — what went wrong between stock on the floor and the online store?
-- [ ] L12: your role on RetailBridge
-- [ ] L15: stack
-- [ ] L27: real components
-- [ ] L41: dated entries
-- [ ] L46: what you built, in bullets.
-- [ ] L47: status and stack.
+- [ ] L11: 2–3 sentences — what went wrong with stock control before RFID?
+- [ ] L42: dated entries
+- [ ] L50: what you built, in bullets; where it runs; whether it feeds the online store.
 
 ### `content/projects/sentry-on-oci.md`
 
@@ -97,16 +70,7 @@ _Facts only you can supply. Generated from /content — edit the content files, 
 
 ### `content/site.json`
 
-- [ ] L15: create a Formspree form and paste its ID (the part after formspree.io/f/)
-- [ ] L21: upload the CV (see DEPLOY.md §CV) then set this to https://storage.googleapis.com/ntsikagqiba-assets/cv/ntsika-gqiba-cv.pdf
-- [ ] L50: start month (YYYY-MM)
-- [ ] L58: year completed
-- [ ] L63: year completed
-
-### `content/skills.json`
-
-- [ ] L59: confirm Docker is still 'in apprenticeship'
-- [ ] L64: confirm CI/CD is still 'in apprenticeship'
+- [ ] L57: start month (YYYY-MM)
 
 ### `content/studying.json`
 

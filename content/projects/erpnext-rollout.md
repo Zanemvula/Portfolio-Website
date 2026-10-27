@@ -1,20 +1,20 @@
 ---
 title: ERPNext rollout
-summary: Led the ERPNext (Frappe) implementation across all LNS Corporation branches, on a Linux VPS.
+summary: Led the ERPNext (Frappe) implementation across LNS Corporation's businesses, from requirements to configuration, print formats and staff guides.
 year: "TODO: year(s)"
-status: todo # TODO: live | in-progress
+status: in-progress
 order: 3
 draft: false
 confidential: true
 organisation: LNS Corporation
 clouds: [linux]
-problem: "TODO: 2–3 sentences — how were the branches run before ERPNext?"
-role: Implementation lead — led the rollout across all branches.
+problem: "LNS Corporation is a holding company with aluminium manufacturing, glass retail, plastics and footwear retail businesses. Each business's stock, POS, sales and accounts are moving onto ERPNext. Premium Aluminium still runs a legacy IQ Retail system and POS, with supplier pricing spread across more than 20 catalogues."
+role: Implementation lead, from requirements to configuration, print formats and staff guides.
 stack:
   - ERPNext
   - Frappe
   - Linux VPS
-  # TODO: VPS provider, OS, database, backups, what you automated
+  - IQ Retail (being replaced)
 links: {}
 scene:
   prompt: "Stewards from several branch houses, each carrying a bound ledger, converge on a long oak table in a vaulted hall where a single great master ledger lies open; clerks reconcile its columns; daylight from tall windows"
@@ -26,24 +26,30 @@ scene:
     - { id: figures, depth: 0.55, transparent: true, contains: "only the stewards and the clerks" }
     - { id: foreground, depth: 1, transparent: true, contains: "only the stack of ledgers and the candlestick along the bottom edge" }
 architecture:
-  # TODO: hosting details
   tiers:
-    - label: Users
+    - label: Businesses
       nodes:
-        - { id: branches, label: LNS branches, note: all branches }
+        - { id: comfy, label: "Comfy Shoes", note: "footwear retail · in-store till" }
+        - { id: premium, label: "Premium Aluminium", note: "moving off IQ Retail" }
+        - { id: group, label: "Other LNS businesses", note: "glass retail · plastics" }
     - label: Application
       nodes:
-        - { id: erp, label: ERPNext, note: Frappe }
+        - { id: erp, label: "ERPNext", note: "stock · POS · sales · accounts" }
     - label: Host
       nodes:
-        - { id: vps, label: Linux VPS }
+        - { id: vps, label: "Linux VPS" }
   edges:
-    - { from: branches, to: erp }
+    - { from: comfy, to: erp }
+    - { from: premium, to: erp, label: "scoping" }
+    - { from: group, to: erp }
     - { from: erp, to: vps }
 log: [] # TODO: dated entries
 ---
 
-I led the ERPNext (Frappe) implementation across all LNS Corporation branches, hosted on a Linux VPS.
+I led the ERPNext (Frappe) implementation across LNS Corporation's branches, hosted on a Linux VPS.
 
-<!-- TODO: hosting details (provider, sizing, backups). -->
-<!-- TODO: what you automated. -->
+- Took each rollout from requirements through configuration to print formats and staff guides.
+- ERPNext is the till, stock master and accounting system behind the Comfy Shoes store. The [Comfy Shoes e-commerce platform](/works/comfy-shoes/) syncs with it in both directions.
+- Now scoping the replacement of Premium Aluminium's legacy IQ Retail system and POS with ERPNext. That starts with a current-state analysis of IQ Retail and the existing POS, then maps the supplier pricing spread across more than 20 catalogues and the move of stock, sales and the showroom POS.
+
+<!-- TODO: hosting details (provider, sizing, backups) and what you automated. -->

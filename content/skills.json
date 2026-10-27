@@ -3,7 +3,7 @@
     "id": "cloud",
     "title": "Cloud",
     "order": 1,
-    "blurb": "Production workloads across three providers.",
+    "blurb": "Production workloads across three providers, with Cloudflare at the edge.",
     "items": [
       {
         "name": "AWS",
@@ -15,6 +15,10 @@
       },
       {
         "name": "Google Cloud (GCP)",
+        "level": "practised"
+      },
+      {
+        "name": "Cloudflare",
         "level": "practised"
       }
     ],
@@ -51,17 +55,19 @@
     "id": "delivery",
     "title": "Delivery",
     "order": 3,
-    "blurb": "Packaging and shipping software — still in apprenticeship.",
+    "blurb": "Packaging, testing and shipping software.",
     "items": [
       {
         "name": "Docker",
-        "level": "apprenticeship",
-        "note": "TODO: confirm Docker is still 'in apprenticeship'"
+        "level": "practised"
       },
       {
-        "name": "CI/CD",
-        "level": "apprenticeship",
-        "note": "TODO: confirm CI/CD is still 'in apprenticeship'"
+        "name": "CI/CD with GitHub Actions",
+        "level": "practised"
+      },
+      {
+        "name": "Playwright and Lighthouse budgets",
+        "level": "practised"
       }
     ],
     "scene": {

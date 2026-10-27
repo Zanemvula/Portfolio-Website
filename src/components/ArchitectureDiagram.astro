@@ -78,7 +78,40 @@ tiers.forEach((tier, row) => {
 
 const H = y - ROW_GAP + PAD;
 
-const paths = edges.flatMap((edge) => {
+/**
+ * Where an edge meets a box. When several edges share a side of the same box they are
+ * spread across it (ordered by where their other end sits) instead of stacking on the
+ * centre, where an arrow in and an arrow out would read as one two-way arrow.
+ */
+type Side = 'top' | 'bottom';
+const ports = new Map<string, string[]>();
+const portKey = (nid: string, side: Side) => `${nid}:${side}`;
+edges.forEach((edge, i) => {
+  const a = placed.get(edge.from);
+  const b = placed.get(edge.to);
+  if (!a || !b || a.row === b.row) return;
+  const down = b.row > a.row;
+  for (const [n, side] of [
+    [a, down ? 'bottom' : 'top'],
+    [b, down ? 'top' : 'bottom'],
+  ] as const) {
+    const key = portKey(n.id, side);
+    ports.set(key, [...(ports.get(key) ?? []), String(i)]);
+  }
+});
+const centre = (n: Placed) => n.x + n.w / 2;
+const portX = (n: Placed, side: Side, i: number) => {
+  const list = ports.get(portKey(n.id, side)) ?? [];
+  if (list.length < 2) return centre(n);
+  const other = (e: string) => {
+    const edge = edges[Number(e)]!;
+    return centre(placed.get(edge.from === n.id ? edge.to : edge.from)!);
+  };
+  const order = [...list].sort((p, q) => other(p) - other(q) || Number(p) - Number(q));
+  return n.x + n.w * (0.25 + (0.5 * order.indexOf(String(i))) / (order.length - 1));
+};
+
+const paths = edges.flatMap((edge, i) => {
   const a = placed.get(edge.from);
   const b = placed.get(edge.to);
   if (!a || !b) return [];
@@ -95,9 +128,9 @@ const paths = edges.flatMap((edge) => {
     ly = yy - 10;
   } else {
     const down = b.row > a.row;
-    const x1 = a.x + a.w / 2;
+    const x1 = portX(a, down ? 'bottom' : 'top', i);
     const y1 = down ? a.y + a.h : a.y;
-    const x2 = b.x + b.w / 2;
+    const x2 = portX(b, down ? 'top' : 'bottom', i);
     const y2 = down ? b.y - 6 : b.y + b.h + 6;
     const my = (y1 + y2) / 2;
     d = `M${x1},${y1} C${x1},${my} ${x2},${my} ${x2},${y2}`;

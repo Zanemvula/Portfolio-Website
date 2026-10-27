@@ -18,7 +18,7 @@
     "linkedin": "https://www.linkedin.com/in/ntsika-gqiba",
     "github": "https://github.com/Zanemvula"
   },
-  "cv": "TODO: upload the CV (see DEPLOY.md §CV) then set this to https://storage.googleapis.com/ntsikagqiba-assets/cv/ntsika-gqiba-cv.pdf",
+  "cv": "https://storage.googleapis.com/ntsikagqiba-assets/cv/ntsika-gqiba-cv.pdf",
   "assetsBase": "https://storage.googleapis.com/ntsikagqiba-assets",
   "media": {
     "videos": []
@@ -32,6 +32,12 @@
       "end": "present"
     },
     {
+      "title": "Founder & Engineer",
+      "organisation": "Chatly (Vularis Pty Ltd)",
+      "start": "2026-06",
+      "end": "present"
+    },
+    {
       "title": "Paid Ads Campaign Manager",
       "organisation": "LNS Corporation",
       "place": "Boksburg",
@@ -42,7 +48,8 @@
       "title": "Junior Paid Media Specialist",
       "organisation": "#HelloYes Marketing",
       "start": "2024-11",
-      "end": "2025-10"
+      "end": "2025-10",
+      "place": "Bedfordview"
     },
     {
       "title": "Freelance Cloud & Software Engineer",
@@ -55,12 +62,12 @@
     {
       "qualification": "BCom Honours (Marketing)",
       "institution": "University of the Witwatersrand",
-      "year": "TODO: year completed"
+      "year": "2024"
     },
     {
       "qualification": "BCom (Information Systems)",
       "institution": "University of the Witwatersrand",
-      "year": "TODO: year completed"
+      "year": "2023"
     }
   ]
 }

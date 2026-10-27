@@ -252,9 +252,10 @@ one. Videos go in `gs://$BUCKET/videos/` and are listed under `media.videos` in 
 then `bash deploy/domain.sh`. It creates both mappings and prints the exact records to add. Re-run it
 to watch the certificate status.
 
-**At Porkbun** (Domain Management → ntsikagqiba.com → DNS): delete the default parking records
-first: the `ALIAS` on the bare domain and the `CNAME` on `*`, both pointing at `pixie.porkbun.com`.
-Then add the records below, with **Host** left empty for the bare domain and `www` for www.
+**At Namecheap** (Domain List → ntsikagqiba.com → **Manage** → **Advanced DNS**; nameservers
+must be *Namecheap BasicDNS*): delete the default parking records first, the `CNAME` on `www` to
+`parkingpage.namecheap.com` and the `URL Redirect Record` on `@`. Then add the records below, with
+**Host** `@` for the bare domain and `www` for www, TTL *Automatic*.
 
 ```bash
 gcloud domains verify ntsikagqiba.com      # Search Console opens: add the TXT record it shows, then click Verify

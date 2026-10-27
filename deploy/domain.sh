@@ -18,7 +18,7 @@ $DOMAIN is not verified for $(gcloud config get-value account 2>/dev/null) yet.
 
   1. Run:  gcloud domains verify $DOMAIN
      Open the link it prints. Search Console shows a TXT record (google-site-verification=…).
-  2. Add it at your registrar: type TXT, host empty (@), answer = that value.
+  2. Add it at your registrar: type TXT, host @, value = that text.
   3. Back in Search Console, press Verify (DNS can take a few minutes), then re-run this script.
 EOF
   exit 1
@@ -35,7 +35,7 @@ done
 
 echo
 echo "Add exactly these records at your registrar (and delete any other A, AAAA, ALIAS or CNAME"
-echo "records for @, www and *). An empty host means the bare domain (@)."
+echo "records for @, www and *). Host @ is the bare domain."
 echo
 # Print the records Cloud Run asks for, plus whether each mapping is ready yet.
 read -r -d '' SHOW <<'PY' || true
@@ -47,7 +47,7 @@ records = status.get('resourceRecords', [])
 if not records:
     print('  %s: records not issued yet; re-run in a minute' % host)
 for r in records:
-    name = r.get('name') or '@ (leave empty)'
+    name = r.get('name') or '@'
     print('  %-6s host: %-16s value: %s' % (r.get('type', ''), name, r['rrdata']))
 ready = {c['type']: c['status'] for c in status.get('conditions', [])}
 print('  %s: Ready=%s certificate=%s\n' % (host, ready.get('Ready', '?'), ready.get('CertificateProvisioned', '?')))

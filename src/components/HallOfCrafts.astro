@@ -7,6 +7,7 @@ interface Props {
   crafts: CollectionEntry<'crafts'>[];
 }
 const { crafts } = Astro.props;
+const learning = crafts.some((c) => c.data.items.some((i) => i.level === 'apprenticeship'));
 ---
 
 <section class="crafts brushed-top" id="crafts" aria-labelledby="crafts-title">
@@ -14,7 +15,7 @@ const { crafts } = Astro.props;
     <div class="section-head">
       <p class="eyebrow">The Workshop</p>
       <h2 id="crafts-title">The Hall of Crafts</h2>
-      <p>The disciplines behind the works. Marks show where I am still in apprenticeship.</p>
+      <p>The disciplines behind the works.{learning && ' Marks show where I am still in apprenticeship.'}</p>
     </div>
     <ul class="crafts__grid">
       {
