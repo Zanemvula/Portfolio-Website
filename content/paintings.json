@@ -1,1 +1,180 @@
-{}
+{
+  "chatly": {
+    "revision": 1,
+    "width": 1536,
+    "height": 1024,
+    "widths": [
+      768,
+      1152,
+      1536
+    ],
+    "layers": [
+      "full",
+      "plate",
+      "figures"
+    ],
+    "og": true,
+    "updated": "2026-10-16"
+  },
+  "comfy-shoes": {
+    "revision": 1,
+    "width": 1536,
+    "height": 1024,
+    "widths": [
+      768,
+      1152,
+      1536
+    ],
+    "layers": [
+      "full",
+      "plate",
+      "figures"
+    ],
+    "og": true,
+    "updated": "2026-10-17"
+  },
+  "craft-business": {
+    "revision": 1,
+    "width": 1024,
+    "height": 1024,
+    "widths": [
+      480,
+      768,
+      1024
+    ],
+    "layers": [
+      "full"
+    ],
+    "og": false,
+    "updated": "2026-10-26"
+  },
+  "craft-cloud": {
+    "revision": 1,
+    "width": 1024,
+    "height": 1024,
+    "widths": [
+      480,
+      768,
+      1024
+    ],
+    "layers": [
+      "full"
+    ],
+    "og": false,
+    "updated": "2026-10-26"
+  },
+  "craft-delivery": {
+    "revision": 1,
+    "width": 1024,
+    "height": 1024,
+    "widths": [
+      480,
+      768,
+      1024
+    ],
+    "layers": [
+      "full"
+    ],
+    "og": false,
+    "updated": "2026-10-26"
+  },
+  "craft-systems": {
+    "revision": 1,
+    "width": 1024,
+    "height": 1024,
+    "widths": [
+      480,
+      768,
+      1024
+    ],
+    "layers": [
+      "full"
+    ],
+    "og": false,
+    "updated": "2026-10-26"
+  },
+  "crm-on-aws": {
+    "revision": 1,
+    "width": 1536,
+    "height": 1024,
+    "widths": [
+      768,
+      1152,
+      1536
+    ],
+    "layers": [
+      "full",
+      "plate",
+      "figures"
+    ],
+    "og": true,
+    "updated": "2026-10-19"
+  },
+  "erpnext-rollout": {
+    "revision": 1,
+    "width": 1536,
+    "height": 1024,
+    "widths": [
+      768,
+      1152,
+      1536
+    ],
+    "layers": [
+      "full",
+      "plate",
+      "figures"
+    ],
+    "og": true,
+    "updated": "2026-10-18"
+  },
+  "finale": {
+    "revision": 1,
+    "width": 1536,
+    "height": 1024,
+    "widths": [
+      768,
+      1152,
+      1536
+    ],
+    "layers": [
+      "full",
+      "plate",
+      "foreground"
+    ],
+    "og": true,
+    "updated": "2026-10-26"
+  },
+  "hero": {
+    "revision": 1,
+    "width": 1536,
+    "height": 1024,
+    "widths": [
+      768,
+      1152,
+      1536
+    ],
+    "layers": [
+      "full",
+      "plate",
+      "figures",
+      "foreground"
+    ],
+    "og": true,
+    "updated": "2026-10-16"
+  },
+  "retailbridge": {
+    "revision": 1,
+    "width": 1536,
+    "height": 1024,
+    "widths": [
+      768,
+      1152,
+      1536
+    ],
+    "layers": [
+      "full"
+    ],
+    "og": true,
+    "updated": "2026-10-20"
+  }
+}
