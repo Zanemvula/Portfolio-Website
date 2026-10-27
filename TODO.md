@@ -8,10 +8,10 @@
 - [x] Add repo variables `WIF_PROVIDER`, `WIF_SA`, `RUN_SA`, `GCP_PROJECT_ID` (DEPLOY.md §5). Optional, still open: the secret `OPENAI_API_KEY`, only for API painting in the Art workflow.
 - [x] First deploy (DEPLOY.md §6): https://portfolio-156341520802.europe-west1.run.app (revision `portfolio-00002-6bm`).
 - [ ] Create a Formspree form; put its ID in `content/site.json` → `contact.formspreeId`.
-- [ ] Upload the CV to the bucket and set `cv` in `content/site.json` (DEPLOY.md §8). Check it reflects the Software Engineer role (Sep 2026).
+- [x] Upload the CV to the bucket and set `cv` in `content/site.json` (DEPLOY.md §8).
 - [ ] Consider a Calendly event aimed at hiring managers (e.g. "30-min intro call"); the current link is `free-strategy-session`, which reads as an agency sales call.
 - [x] **Paint the scenes** ([ART.md](ART.md)): all 11 published scenes are in `gs://ntsikagqiba-assets/paintings/`, originals in `originals/`.
-- [ ] Domain: verify ntsikagqiba.com, create the mappings, add the DNS records (DEPLOY.md §9).
+- [x] Domain: ntsikagqiba.com and www live on Cloud Run domain mappings, DNS at Namecheap, 2026-10-27 (DEPLOY.md §9).
 - [ ] After cut-over: `portfolio.md` → `draft: false`, merge `v2-gallery`, remove `v2-gallery` from `deploy.yml`/`ci.yml`, retire the old host.
 - [ ] Afterwards: profile README repo `Zanemvula/Zanemvula` and one case-study repo per project (I will ask for the facts).
 
