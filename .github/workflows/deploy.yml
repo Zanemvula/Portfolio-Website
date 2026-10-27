@@ -1,11 +1,15 @@
 name: Deploy
 
-# Deploys every push to main. While the rebuild lives on v2-gallery, pushes
-# there deploy too, so the skeleton is live from day one — remove v2-gallery
-# from this list when it is merged.
+# Production releases, from main only:
+#   1. CI runs on the merged commit and saves the tested image.
+#   2. That image is pushed to Artifact Registry and deployed as a new revision with
+#      NO traffic, reachable only at its `candidate` tag URL.
+#   3. The candidate is smoke-tested. A failure discards it; visitors never see it.
+#   4. Traffic moves to the candidate in one step, and production is smoke-tested.
+#      A failure there sends traffic straight back to the previous revision.
 on:
   push:
-    branches: [main, v2-gallery]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -18,30 +22,37 @@ concurrency:
 env:
   REGION: europe-west1
   SERVICE: portfolio
-  REPOSITORY: portfolio
+  SITE_URL: https://ntsikagqiba.com
 
 jobs:
-  verify:
+  ci:
     uses: ./.github/workflows/ci.yml
 
-  deploy:
-    name: Build, push and deploy to Cloud Run
-    needs: verify
-    # Skips cleanly until the GCP bootstrap in DEPLOY.md has set the repo variables.
-    if: ${{ vars.WIF_PROVIDER != '' && vars.WIF_SA != '' && vars.GCP_PROJECT_ID != '' }}
+  release:
+    name: Release to Cloud Run
+    needs: ci
+    # Production is main only; the variables come from the GCP bootstrap (DEPLOY.md).
+    if: ${{ github.ref == 'refs/heads/main' && vars.WIF_PROVIDER != '' && vars.WIF_SA != '' && vars.GCP_PROJECT_ID != '' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      actions: read
       id-token: write
     environment:
       name: production
-      url: ${{ steps.deploy.outputs.url }}
+      url: ${{ env.SITE_URL }}
     env:
       IMAGE: europe-west1-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/portfolio/portfolio:${{ github.sha }}
+      RUN_SA: ${{ vars.RUN_SA }}
+      COMMIT: ${{ github.sha }}
     steps:
       - uses: actions/checkout@v7
 
-      - name: Authenticate to Google Cloud (Workload Identity Federation — no keys)
+      - uses: actions/download-artifact@v7
+        with:
+          name: image
+
+      - name: Authenticate to Google Cloud (Workload Identity Federation, no keys)
         uses: google-github-actions/auth@v3
         with:
           workload_identity_provider: ${{ vars.WIF_PROVIDER }}
@@ -49,43 +60,54 @@ jobs:
 
       - uses: google-github-actions/setup-gcloud@v3
 
-      - run: gcloud auth configure-docker "${REGION}-docker.pkg.dev" --quiet
-
-      - uses: docker/setup-buildx-action@v4
-
-      - name: Build and push the image (tagged with the commit SHA)
-        uses: docker/build-push-action@v7
-        with:
-          context: .
-          push: true
-          tags: ${{ env.IMAGE }}
-          cache-from: type=gha
-          provenance: false
-
-      - name: Deploy
-        id: deploy
+      - name: Push the tested image
         run: |
-          extra=()
-          if [ -n "${{ vars.RUN_SA }}" ]; then extra+=(--service-account "${{ vars.RUN_SA }}"); fi
-          gcloud run deploy "$SERVICE" \
-            --image "$IMAGE" \
-            --region "$REGION" \
-            --platform managed \
-            --allow-unauthenticated \
-            --port 8080 \
-            --min-instances 0 \
-            --max-instances 2 \
-            --memory 256Mi \
-            --cpu 1 \
-            --concurrency 80 \
-            --cpu-boost \
-            --labels "app=portfolio,commit=${GITHUB_SHA::12}" \
-            "${extra[@]}" \
-            --quiet
-          url=$(gcloud run services describe "$SERVICE" --region "$REGION" --format='value(status.url)')
-          echo "url=$url" >> "$GITHUB_OUTPUT"
+          gcloud auth configure-docker "${REGION}-docker.pkg.dev" --quiet
+          docker load < image.tar.gz
+          docker tag portfolio:ci "$IMAGE"
+          docker push "$IMAGE"
 
-      - name: Smoke test
+      - name: Deploy the candidate (no traffic)
+        id: candidate
+        run: deploy/cloudrun.sh deploy "$IMAGE" "${COMMIT::7}-${GITHUB_RUN_ID}" candidate >> "$GITHUB_OUTPUT"
+
+      - name: Smoke-test the candidate
         run: |
-          curl -fsS "${{ steps.deploy.outputs.url }}/health"
-          curl -fsS -o /dev/null -w "GET / → %{http_code} in %{time_total}s\n" "${{ steps.deploy.outputs.url }}/"
+          echo "Candidate ${{ steps.candidate.outputs.revision }} at ${{ steps.candidate.outputs.url }}"
+          deploy/cloudrun.sh smoke "${{ steps.candidate.outputs.url }}"
+
+      - name: Discard a failed candidate
+        if: failure() && steps.candidate.outputs.revision != ''
+        run: deploy/cloudrun.sh discard "${{ steps.candidate.outputs.revision }}"
+
+      - name: Promote
+        id: promote
+        run: |
+          echo "previous=$(deploy/cloudrun.sh serving)" >> "$GITHUB_OUTPUT"
+          deploy/cloudrun.sh promote "${{ steps.candidate.outputs.revision }}"
+
+      - name: Smoke-test production
+        id: production
+        run: deploy/cloudrun.sh smoke "$(deploy/cloudrun.sh url)"
+
+      - name: Roll back on a failed production check
+        if: failure() && steps.production.outcome == 'failure' && steps.promote.outputs.previous != ''
+        run: |
+          echo "::error::Production smoke test failed; sending traffic back to ${{ steps.promote.outputs.previous }}"
+          deploy/cloudrun.sh promote "${{ steps.promote.outputs.previous }}"
+          # Drop the failed revision so it can never be picked as a rollback target.
+          deploy/cloudrun.sh discard "${{ steps.candidate.outputs.revision }}"
+
+      - name: Check the public domain
+        # DNS or certificate trouble is not a reason to roll back code, so this only warns.
+        run: deploy/cloudrun.sh smoke "$SITE_URL" || echo "::warning::$SITE_URL failed its smoke test; the run.app URL passed."
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "### Release ${COMMIT::7}"
+            echo "- Revision: \`${{ steps.candidate.outputs.revision }}\`"
+            echo "- Previous: \`${{ steps.promote.outputs.previous }}\` (roll back with the **Rollback** workflow)"
+            echo "- Site: $SITE_URL"
+          } >> "$GITHUB_STEP_SUMMARY"

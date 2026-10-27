@@ -1,10 +1,14 @@
 name: CI
 
+# The gate every change passes before it can reach main. Runs on pull requests,
+# by hand (the Art workflow dispatches it for its manifest PR), and inside Deploy
+# for the merged commit. The three job names are the required status checks on main.
+#
+# The image job saves the exact image it tested as the `image` artifact; Deploy and
+# Preview push that artifact rather than rebuilding, so what ships is what passed.
 on:
   pull_request:
-  push:
-    # v2-gallery is verified by deploy.yml while the rebuild lives there.
-    branches-ignore: [main, v2-gallery]
+  workflow_dispatch:
   workflow_call:
 
 permissions:
@@ -27,7 +31,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   verify:
-    name: Lint · typecheck · build · Lighthouse
+    name: Lint · typecheck · build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -42,6 +46,24 @@ jobs:
       - run: npm run typecheck
       - run: npm run build
 
+      - name: Lint workflows and deploy scripts
+        run: |
+          docker run --rm -v "$PWD:/repo" --workdir /repo mirror.gcr.io/rhysd/actionlint:1.7.12 -color
+          shellcheck deploy/*.sh
+
+  image:
+    name: Container · Lighthouse
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
       - uses: docker/setup-buildx-action@v4
 
       - name: Build the production image
@@ -52,13 +74,13 @@ jobs:
           tags: portfolio:ci
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          provenance: false
 
-      - name: Run the container
+      - name: Run the container and smoke-test it
         run: |
           docker run -d --name gallery -p 8080:8080 portfolio:ci
-          for i in $(seq 1 30); do curl -fsS http://localhost:8080/health && break; sleep 1; done
-          curl -fsSI http://localhost:8080/ | tee headers.txt
-          grep -qi '^content-security-policy:' headers.txt
+          for _ in $(seq 1 30); do curl -fsS http://localhost:8080/health && break; sleep 1; done
+          deploy/cloudrun.sh smoke http://localhost:8080
 
       - name: Lighthouse CI (mobile, every category ≥ 90)
         run: npx lhci autorun
@@ -71,3 +93,14 @@ jobs:
           path: .lighthouseci
           include-hidden-files: true
           retention-days: 14
+
+      - name: Save the tested image
+        run: docker save portfolio:ci | gzip -1 > image.tar.gz
+
+      - name: Upload the tested image
+        uses: actions/upload-artifact@v7
+        with:
+          name: image
+          path: image.tar.gz
+          retention-days: 3
+          compression-level: 0

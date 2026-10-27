@@ -2,9 +2,10 @@ name: Art
 
 # Publishes the scene paintings. Default: take the PNGs you uploaded to
 # gs://ntsikagqiba-assets/originals/<scene>/ (from ChatGPT), convert them to
-# AVIF/WebP, upload them to gs://ntsikagqiba-assets/paintings/, commit
-# content/paintings.json and deploy. Optionally paint missing scenes with the
-# OpenAI API first. Run it by hand from the Actions tab.
+# AVIF/WebP, upload them to gs://ntsikagqiba-assets/paintings/, and open a pull
+# request with the updated content/paintings.json; merging it releases the art.
+# Optionally paint missing scenes with the OpenAI API first. Run it by hand from
+# the Actions tab.
 on:
   workflow_dispatch:
     inputs:
@@ -21,6 +22,7 @@ permissions:
   contents: write
   id-token: write
   actions: write
+  pull-requests: write
 
 concurrency:
   group: art
@@ -61,30 +63,43 @@ jobs:
           PAINTING_MODEL: ${{ vars.PAINTING_MODEL }}
           CUTOUT_MODEL: ${{ vars.CUTOUT_MODEL }}
           SCENES: ${{ inputs.scenes }}
-        run: npx tsx scripts/art-generate.ts $SCENES
+        run: |
+          read -ra keys <<< "$SCENES"
+          npx tsx scripts/art-generate.ts "${keys[@]}"
 
       - name: Convert and publish
         env:
           SCENES: ${{ inputs.scenes }}
-        run: npx tsx scripts/art-process.ts $SCENES --upload
-
-      - name: Commit the manifest
-        id: commit
         run: |
-          if git diff --quiet -- content/paintings.json; then
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add content/paintings.json
-          git commit -m "chore(art): publish ${{ inputs.scenes || 'scenes' }}"
-          git push
-          echo "changed=true" >> "$GITHUB_OUTPUT"
+          read -ra keys <<< "$SCENES"
+          npx tsx scripts/art-process.ts "${keys[@]}" --upload
 
-      # Pushes made with GITHUB_TOKEN do not trigger workflows, so start the deploy explicitly.
-      - name: Deploy
-        if: steps.commit.outputs.changed == 'true'
+      # main is protected, so the manifest goes through a pull request like any other change.
+      # The paintings themselves are already public (immutable, revisioned names), and the
+      # site only points at them once this PR is merged and released.
+      - name: Open a pull request with the manifest
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh workflow run deploy.yml --ref "${GITHUB_REF_NAME}"
+          SCENES: ${{ inputs.scenes }}
+        run: |
+          if git diff --quiet -- content/paintings.json; then
+            echo "The manifest is unchanged; nothing to merge." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          branch="art/${GITHUB_RUN_NUMBER}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          git add content/paintings.json
+          git commit -m "chore(art): publish ${SCENES:-scenes}"
+          git push -u origin "$branch"
+          # Pull requests opened with GITHUB_TOKEN don't trigger CI, so start it explicitly;
+          # its checks then report on the PR's commit.
+          gh workflow run ci.yml --ref "$branch"
+          if url=$(gh pr create --base "${{ github.event.repository.default_branch }}" --head "$branch" \
+                --title "Publish art: ${SCENES:-scenes}" \
+                --body "Paintings converted and uploaded to gs://ntsikagqiba-assets/paintings/ by the Art workflow. Merging releases them."); then
+            echo "Manifest PR: $url" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "::warning::Could not open the PR. Allow it under Settings → Actions → General → 'Allow GitHub Actions to create and approve pull requests', or open one from $branch."
+          fi

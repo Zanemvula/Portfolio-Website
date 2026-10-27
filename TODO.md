@@ -12,7 +12,9 @@
 - [ ] Consider a Calendly event aimed at hiring managers (e.g. "30-min intro call"); the current link is `free-strategy-session`, which reads as an agency sales call.
 - [x] **Paint the scenes** ([ART.md](ART.md)): all 11 published scenes are in `gs://ntsikagqiba-assets/paintings/`, originals in `originals/`.
 - [x] Domain: ntsikagqiba.com and www live on Cloud Run domain mappings, DNS at Namecheap, 2026-10-27 (DEPLOY.md §9).
-- [ ] After cut-over: `portfolio.md` → `draft: false`, merge `v2-gallery`, remove `v2-gallery` from `deploy.yml`/`ci.yml`, retire the old host.
+- [x] Merge `v2-gallery` into `main`; only `main` deploys.
+- [ ] Apply the one-time GitHub settings in DEPLOY.md §6: the `main` ruleset with the three required checks, the `production` environment limited to `main`, and Actions allowed to open PRs.
+- [ ] "This gallery" chapter: paint it or skip it (`portfolio.md` is `draft: true`).
 - [ ] Afterwards: profile README repo `Zanemvula/Zanemvula` and one case-study repo per project (I will ask for the facts).
 
 <!-- BEGIN GENERATED: npm run todos -->
