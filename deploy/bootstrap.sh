@@ -19,7 +19,8 @@ GH_REPO=Zanemvula/Portfolio-Website
 
 step() { printf '\n\033[1;33m▸ %s\033[0m\n' "$*"; }
 ok() { printf '  \033[32m✓\033[0m %s\n' "$*"; }
-# New service accounts take a few seconds to become visible to IAM; retry bindings.
+# A new project, API or service account takes a minute or two to reach IAM everywhere
+# (it answers PERMISSION_DENIED meanwhile), so retry for up to ~2 minutes.
 retry() { for i in 1 2 3 4 5 6; do "$@" >/dev/null && return 0; sleep $((i * 5)); done; "$@"; }
 
 step "Project $PROJECT_ID"
@@ -69,18 +70,18 @@ else
 fi
 
 step "Artifact Registry: $REPO"
-if gcloud artifacts repositories describe "$REPO" --location="$REGION" >/dev/null 2>&1; then
-  ok "exists"
-else
-  gcloud artifacts repositories create "$REPO" --repository-format=docker --location="$REGION" --description="Portfolio images"
-  ok "created"
-fi
+ar_repo() {
+  gcloud artifacts repositories describe "$REPO" --location="$REGION" >/dev/null 2>&1 ||
+    gcloud artifacts repositories create "$REPO" --repository-format=docker --location="$REGION" --description="Portfolio images"
+}
+retry ar_repo
+ok "ready"
 POLICY=$(mktemp)
 cat >"$POLICY" <<'EOF'
 [{"name":"keep-5","action":{"type":"Keep"},"mostRecentVersions":{"keepCount":5}},
  {"name":"delete-old","action":{"type":"Delete"},"condition":{"olderThan":"30d"}}]
 EOF
-gcloud artifacts repositories set-cleanup-policies "$REPO" --location="$REGION" --policy="$POLICY" --no-dry-run >/dev/null
+retry gcloud artifacts repositories set-cleanup-policies "$REPO" --location="$REGION" --policy="$POLICY" --no-dry-run >/dev/null
 ok "cleanup policy: keep the 5 newest images"
 
 step "Media bucket gs://$BUCKET (public read)"
