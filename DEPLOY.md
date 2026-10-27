@@ -248,6 +248,14 @@ one. Videos go in `gs://$BUCKET/videos/` and are listed under `media.videos` in 
 
 ### Option A: Cloud Run domain mapping (free; europe-west1 supports it)
 
+**Quick path:** `gcloud domains verify ntsikagqiba.com` once (add the TXT record it gives you),
+then `bash deploy/domain.sh`. It creates both mappings and prints the exact records to add. Re-run it
+to watch the certificate status.
+
+**At Porkbun** (Domain Management → ntsikagqiba.com → DNS): delete the default parking records
+first: the `ALIAS` on the bare domain and the `CNAME` on `*`, both pointing at `pixie.porkbun.com`.
+Then add the records below, with **Host** left empty for the bare domain and `www` for www.
+
 ```bash
 gcloud domains verify ntsikagqiba.com      # Search Console opens: add the TXT record it shows, then click Verify
 gcloud domains list-user-verified           # must list ntsikagqiba.com
