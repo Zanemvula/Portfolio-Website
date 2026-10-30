@@ -1,4 +1,9 @@
 # Weekly dependency updates as pull requests; each one goes through CI like any other change.
+#
+# Major versions that move together are left to a deliberate upgrade instead of separate
+# bot PRs that can't pass on their own: Node itself (.nvmrc, the Dockerfile's build image and
+# @types/node change as one), and TypeScript (its majors wait for astro check and
+# typescript-eslint to support them).
 version: 2
 updates:
   - package-ecosystem: npm
@@ -10,6 +15,11 @@ updates:
     groups:
       minor-and-patch:
         update-types: [minor, patch]
+    ignore:
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: typescript
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: github-actions
     directory: /
@@ -25,3 +35,6 @@ updates:
     schedule:
       interval: weekly
       day: monday
+    ignore:
+      - dependency-name: "*node"
+        update-types: ["version-update:semver-major"]
