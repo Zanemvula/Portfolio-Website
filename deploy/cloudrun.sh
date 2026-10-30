@@ -5,13 +5,18 @@
 #
 #   cloudrun.sh deploy IMAGE SUFFIX TAG   new revision <service>-SUFFIX, 0% traffic, tagged TAG; prints revision= and url=
 #   cloudrun.sh smoke URL                 health, pages, 404 and security headers
-#   cloudrun.sh promote REVISION          send 100% of traffic to REVISION
+#   cloudrun.sh promote REVISION          send 100% of traffic to REVISION; the one it replaces is tagged `previous`
 #   cloudrun.sh serving                   the revision taking traffic now
-#   cloudrun.sh previous                  the production revision that served before it (for rollback)
+#   cloudrun.sh previous                  the rollback target: the revision tagged `previous`
+#   cloudrun.sh tagged TAG                the revision a tag points at
+#   cloudrun.sh retag TAG [REVISION]      point TAG at REVISION, or remove it
 #   cloudrun.sh discard REVISION          drop a revision that never took traffic (failed candidate)
 #   cloudrun.sh untag TAG                 remove a tag URL
-#   cloudrun.sh prune PREFIX              delete every revision named <service>-PREFIX* that has no traffic
+#   cloudrun.sh prune PREFIX              delete revisions named <service>-PREFIX* with no traffic and no tag
 #   cloudrun.sh url                       the service's run.app URL
+#
+# Cloud Run refuses to delete a service's most recently created revision, so discard and prune
+# leave that one in place (it takes no traffic and costs nothing); the next prune removes it.
 #
 # Env: SERVICE (portfolio), REGION (europe-west1), RUN_SA (runtime service account), COMMIT (for labels).
 set -euo pipefail
@@ -69,37 +74,69 @@ smoke() {
   return "$failed"
 }
 
-promote() { gcloud run services update-traffic "$SERVICE" --region "$REGION" --to-revisions "$1=100" --quiet >&2; }
+tagged() { describe | jq -r --arg t "$1" '[.status.traffic[]? | select(.tag == $t) | .revisionName][0] // empty'; }
+
+retag() {
+  local tag=$1 rev=${2:-}
+  untag "$tag"
+  if [ -n "$rev" ]; then
+    gcloud run services update-traffic "$SERVICE" --region "$REGION" --update-tags "$tag=$rev" --quiet >/dev/null
+  fi
+}
+
+promote() {
+  local target=$1 current
+  current=$(serving)
+  if [ "$current" = "$target" ]; then echo "$target is already serving" >&2; return 0; fi
+  gcloud run services update-traffic "$SERVICE" --region "$REGION" --to-revisions "$target=100" --quiet >&2
+  # The revision it replaced becomes the rollback target (and keeps a URL for comparison).
+  if [ -n "$current" ]; then retag previous "$current"; fi
+}
 
 serving() { describe | jq -r '[.status.traffic[]? | select((.percent // 0) > 0)] | max_by(.percent) | .revisionName // empty'; }
 
 previous() {
-  local current
+  local tag current
+  tag=$(tagged previous)
   current=$(serving)
+  if [ -n "$tag" ] && [ "$tag" != "$current" ]; then echo "$tag"; return; fi
+  # No usable tag yet (releases from before tagging): the newest older production revision.
   production_revisions | awk -v cur="$current" 'found { print; exit } $0 == cur { found = 1 }'
+}
+
+latest_created() { describe | jq -r '.status.latestCreatedRevisionName // empty'; }
+
+# Delete one revision, unless it is the latest created, which Cloud Run refuses to delete.
+delete_revision() {
+  if [ "$1" = "$(latest_created)" ]; then
+    echo "kept $1: Cloud Run never deletes the latest created revision; the next prune removes it" >&2
+    return 0
+  fi
+  gcloud run revisions delete "$1" --region "$REGION" --quiet >&2
 }
 
 discard() {
   local rev=$1
   describe | jq -r --arg r "$rev" '.status.traffic[]? | select(.revisionName == $r and (.tag // "") != "") | .tag' |
     while read -r t; do untag "$t"; done
-  gcloud run revisions delete "$rev" --region "$REGION" --quiet >&2
+  delete_revision "$rev"
 }
 
 prune() {
-  local prefix=$SERVICE-$1 busy
-  busy=$(describe | jq -r '[.status.traffic[]? | select((.percent // 0) > 0) | .revisionName] | join(" ")')
+  local prefix=$SERVICE-$1 keep
+  # Anything with traffic or a tag (open PR previews, previous, candidate) stays.
+  keep=$(describe | jq -r '[.status.traffic[]? | select((.percent // 0) > 0 or (.tag // "") != "") | .revisionName] | join(" ")')
   gcloud run revisions list --service "$SERVICE" --region "$REGION" --format='value(metadata.name)' |
     while read -r rev; do
-      case "$rev" in "$prefix"*) [[ " $busy " == *" $rev "* ]] || gcloud run revisions delete "$rev" --region "$REGION" --quiet >&2 ;; esac
+      case "$rev" in "$prefix"*) [[ " $keep " == *" $rev "* ]] || delete_revision "$rev" ;; esac
     done
 }
 
 url() { describe | jq -r '.status.url'; }
 
-cmd=${1:?usage: cloudrun.sh deploy|smoke|promote|serving|previous|discard|untag|prune|url …}
+cmd=${1:?usage: cloudrun.sh deploy|smoke|promote|serving|previous|tagged|retag|discard|untag|prune|url …}
 shift
 case "$cmd" in
-  deploy | smoke | promote | serving | previous | discard | untag | prune | url) "$cmd" "$@" ;;
+  deploy | smoke | promote | serving | previous | tagged | retag | discard | untag | prune | url) "$cmd" "$@" ;;
   *) echo "unknown command: $cmd" >&2; exit 2 ;;
 esac

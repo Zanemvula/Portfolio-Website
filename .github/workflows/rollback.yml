@@ -2,7 +2,8 @@ name: Rollback
 
 # Send production traffic back to an earlier revision in one step. The revision is
 # still deployed and its image is still in Artifact Registry, so nothing is rebuilt.
-# Leave the input empty to go back to the revision that served before the current one.
+# Leave the input empty to go back to the revision tagged `previous`: the one the current
+# revision replaced. Running it again goes back the other way.
 # The next push to main releases as usual.
 on:
   workflow_dispatch:
@@ -68,5 +69,5 @@ jobs:
           {
             echo "### Rolled back"
             echo "- Now serving: \`${{ steps.target.outputs.target }}\`"
-            echo "- Was: \`${{ steps.target.outputs.current }}\` (still deployed; run this workflow with its name to return to it)"
+            echo "- Was: \`${{ steps.target.outputs.current }}\`, now tagged \`previous\`: run this workflow again to return to it"
           } >> "$GITHUB_STEP_SUMMARY"
