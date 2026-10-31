@@ -191,7 +191,7 @@ pull request ──► CI ─────────────► Preview ─
 |---|---|---|
 | `ci.yml` (**CI**) | every pull request; by hand; inside Deploy | The three required checks: *Secret scan (gitleaks)*, *Lint · typecheck · build* (also actionlint and shellcheck), *Container · Lighthouse* (builds the production image, smoke-tests it with the same script as production, Lighthouse ≥ 90 in every category, saves the image as the `image` artifact). |
 | `preview.yml` (**Preview**) | after CI passes on a PR from this repository | Pushes the image CI tested as `portfolio:pr-<n>-<sha>`, deploys it as revision `portfolio-pr-<n>-…` with **no traffic** at `https://pr-<n>---portfolio-….run.app`, smoke-tests it and posts the link on the PR (one comment, updated on each push). Fork and Dependabot PRs get CI only, never cloud access. |
-| `pr-cleanup.yml` (**PR Cleanup**) | a PR closes | Removes the `pr-<n>` tag and deletes that PR's preview revisions. |
+| `pr-cleanup.yml` (**PR Cleanup**) | a PR closes | Removes the `pr-<n>` tag and deletes that PR's preview revisions. Cloud Run never deletes the newest revision, so a preview that is still the newest when its PR closes is removed by the next release's housekeeping step. |
 | `deploy.yml` (**Deploy**) | push to `main`; by hand (main only) | Runs CI on the merged commit, then releases the image CI tested: candidate revision with 0% traffic → smoke test → promote → smoke test production → automatic rollback if production fails. |
 | `rollback.yml` (**Rollback**) | by hand | Sends traffic back to the previous production revision, or to one you name, then smoke-tests it. Nothing is rebuilt. |
 | `art.yml` (**Art**) | by hand | Converts and uploads paintings, then opens a PR with `content/paintings.json`; merging it releases the art. |
@@ -221,8 +221,9 @@ PRs for npm, GitHub Actions and the Docker base images; they go through the same
 
 - **Release:** merge a PR. Deploy's run summary names the new revision and the one it replaced.
 - **What is live:** `gcloud run services describe portfolio --region europe-west1 --format='yaml(status.traffic)'`
-- **Roll back:** Actions → **Rollback** → Run workflow (leave the revision empty for "the previous
-  one"). Or from a terminal: `gcloud run services update-traffic portfolio --region europe-west1 --to-revisions <REVISION>=100`.
+- **Roll back:** Actions → **Rollback** → Run workflow. Leave the revision empty to go back to the
+  revision tagged `previous` (the one the live revision replaced; it also has its own URL,
+  `https://previous---portfolio-….run.app`). Running it again goes back the other way. Or from a terminal: `gcloud run services update-traffic portfolio --region europe-west1 --to-revisions <REVISION>=100`.
 - Images are kept by the Artifact Registry cleanup policy: the 5 newest, plus anything newer than
   30 days. A revision older than that may have lost its image and can't be rolled back to.
 

@@ -83,7 +83,9 @@ jobs:
       - name: Promote
         id: promote
         run: |
+          # Remember what is serving and what `previous` points at, to undo both if production fails.
           echo "previous=$(deploy/cloudrun.sh serving)" >> "$GITHUB_OUTPUT"
+          echo "previous_tag=$(deploy/cloudrun.sh tagged previous)" >> "$GITHUB_OUTPUT"
           deploy/cloudrun.sh promote "${{ steps.candidate.outputs.revision }}"
 
       - name: Smoke-test production
@@ -95,8 +97,14 @@ jobs:
         run: |
           echo "::error::Production smoke test failed; sending traffic back to ${{ steps.promote.outputs.previous }}"
           deploy/cloudrun.sh promote "${{ steps.promote.outputs.previous }}"
-          # Drop the failed revision so it can never be picked as a rollback target.
+          # promote just tagged the failed revision `previous`; restore the tag to what it was.
+          deploy/cloudrun.sh retag previous "${{ steps.promote.outputs.previous_tag }}"
           deploy/cloudrun.sh discard "${{ steps.candidate.outputs.revision }}"
+
+      - name: Remove leftover previews
+        # PR Cleanup can't delete a preview that was the newest revision when its PR closed;
+        # now that this release is newer, it can go. Open PRs keep theirs (they are tagged).
+        run: deploy/cloudrun.sh prune pr-
 
       - name: Check the public domain
         # DNS or certificate trouble is not a reason to roll back code, so this only warns.
