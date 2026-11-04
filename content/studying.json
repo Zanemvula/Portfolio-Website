@@ -1,13 +1,11 @@
 [
   {
-    "id": "aws-saa",
-    "title": "AWS Certified Solutions Architect – Associate",
-    "provider": "Amazon Web Services",
-    "url": "https://aws.amazon.com/certification/certified-solutions-architect-associate/",
+    "id": "gcp-ace",
+    "title": "Google Cloud Associate Cloud Engineer",
+    "provider": "Google Cloud",
     "status": "in-progress",
+    "statusText": "Exam booked · 12 December 2026",
     "started": "TODO: start month (YYYY-MM)",
-    "target": "TODO: target exam month (YYYY-MM)",
-    "nextStep": "TODO: current module or next milestone",
     "order": 1
   },
   {
@@ -15,9 +13,8 @@
     "title": "Networking fundamentals",
     "provider": "Professor Messer",
     "url": "https://www.professormesser.com/",
-    "status": "studying",
+    "status": "completed",
     "started": "TODO: start month (YYYY-MM)",
-    "nextStep": "TODO: current section or next milestone",
     "order": 2
   }
 ]

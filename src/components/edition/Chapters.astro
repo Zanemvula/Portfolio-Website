@@ -46,7 +46,7 @@ const medium = (w: CollectionEntry<'projects'>) => {
               {w.data.summary}
             </p>
             <p class="chapter__status" data-chapter-line>
-              {[STATUS_LABELS[w.data.status], w.data.organisation].filter(Boolean).join(' · ')}
+              {w.data.statusText ?? [STATUS_LABELS[w.data.status], w.data.organisation].filter(Boolean).join(' · ')}
             </p>
             <a class="btn btn--gilt" href={`/works/${w.id}/`} data-chapter-line data-slug={w.id}>
               Step into the painting →

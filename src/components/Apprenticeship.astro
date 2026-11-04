@@ -24,7 +24,7 @@ const STATUS = { studying: 'Studying', 'in-progress': 'In progress', paused: 'Pa
             <article class="study">
               <div class="study__head">
                 <h3>{s.data.title}</h3>
-                <span class="study__status">{STATUS[s.data.status]}</span>
+                <span class="study__status">{s.data.statusText ?? STATUS[s.data.status]}</span>
               </div>
               <p>
                 {s.data.url ? <a href={s.data.url}>{s.data.provider}</a> : s.data.provider}

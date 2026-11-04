@@ -23,7 +23,7 @@ const hasBody = (work.body ?? '').replace(/<!--[\s\S]*?-->/g, '').trim().length 
 const problem = known(d.problem);
 const role = known(d.role);
 const year = known(d.year);
-const status = STATUS_LABELS[d.status];
+const status = d.statusText ?? STATUS_LABELS[d.status];
 const stack = d.stack.filter((s) => !isTodo(s));
 const links = [
   known(d.links.live) && { href: known(d.links.live)!, label: 'Visit live', icon: 'external' as const },

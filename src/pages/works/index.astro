@@ -29,7 +29,7 @@ const works = await getWorks();
                 <p class="meta">
                   {[
                     known(w.data.year),
-                    STATUS_LABELS[w.data.status],
+                    w.data.statusText ?? STATUS_LABELS[w.data.status],
                     w.data.clouds.map((c) => CLOUD_LABELS[c]).join(', '),
                     w.data.stack.slice(0, 5).join(', '),
                   ]

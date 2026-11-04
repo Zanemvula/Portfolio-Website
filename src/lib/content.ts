@@ -8,5 +8,8 @@ export const getWorks = async () =>
 
 export const getCrafts = async () => (await getCollection('crafts')).sort((a, b) => a.data.order - b.data.order);
 
+// Active studies first, then completed ones.
 export const getStudies = async () =>
-  (await getCollection('studying')).filter((s) => s.data.status !== 'completed').sort((a, b) => a.data.order - b.data.order);
+  (await getCollection('studying')).sort(
+    (a, b) => Number(a.data.status === 'completed') - Number(b.data.status === 'completed') || a.data.order - b.data.order,
+  );
