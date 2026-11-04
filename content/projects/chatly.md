@@ -1,15 +1,16 @@
 ---
 title: Chatly
-summary: A multi-tenant WhatsApp commerce platform for South African small businesses — quotes, payment links and order records, on Google Cloud Run.
-year: "2026–present"
-status: in-progress
+summary: A multi-tenant WhatsApp commerce platform for South African small businesses — quotes, payment links and order records, on Google Cloud Run. Took it from design to a live payment, then shelved it. Shelved because, as a solo engineer, I chose not to carry the risk of processing payments.
+year: "2026"
+status: archived
+statusText: "Archived · Jun – Oct 2026"
 order: 1
 draft: false
 confidential: false
 organisation: Vularis (Pty) Ltd
 clouds: [gcp]
 problem: "South African service and trades businesses quote, sell and get paid inside WhatsApp, by hand. Quotes are typed out, payment details are sent as screenshots, and nobody can see what was sold."
-role: Founder and engineer. I designed, built and run it.
+role: Founder and engineer. I designed, built and ran it.
 stack:
   - Cloud Run
   - WhatsApp Cloud API
@@ -54,9 +55,10 @@ architecture:
     - { from: pay, to: bank, label: "settles direct" }
 log:
   - { date: 2026-06, note: "Started Chatly under Vularis (Pty) Ltd." }
+  - { date: 2026-10-25, note: "Archived after a live end-to-end payment. Decided not to run a payments product as a solo engineer." }
 ---
 
-Chatly is a multi-tenant conversational-commerce platform. A merchant connects their own WhatsApp number. Chatly runs the ordering and quoting conversation on it, takes payment through the merchant's own payment account, records the sale and gives the merchant a dashboard over all of it. I designed, built and run it under Vularis (Pty) Ltd. It is in active development, at the founder-cohort stage.
+Chatly is a multi-tenant conversational-commerce platform. A merchant connects their own WhatsApp number. Chatly runs the ordering and quoting conversation on it, takes payment through the merchant's own payment account, records the sale and gives the merchant a dashboard over all of it. I designed, built and ran it under Vularis (Pty) Ltd. Archived in October 2026.
 
 - **One Cloud Run service** (Node.js, Express, TypeScript) serves the WhatsApp webhooks, the API and the merchant dashboard from the same origin. WhatsApp is integrated directly through the Cloud API as an Independent Tech Provider, with no reseller in between.
 - **Two datastores, split by access pattern.** Firestore holds the hot path: tenant credentials, live conversation state and inbound-message idempotency. Postgres is the system of record for orders, customers, organisations and billing.
@@ -67,7 +69,5 @@ Chatly is a multi-tenant conversational-commerce platform. A merchant connects t
 - **Multi-tenant authorisation in one place:** organisations, merchants and members with roles. Every route declares the capability it needs.
 
 **Milestones.** Approved through Meta App Review for WhatsApp Business messaging and management. The quote-to-payment flow is proven end to end with a live transaction: a PDF quote and payment link delivered in WhatsApp, the money settled and the order recorded.
-
-**Not done yet, on the roadmap:** an automated test suite, Cloud Scheduler for time-based automations, Secret Manager before the wider launch, and metrics and uptime checks beyond Cloud Logging and email alerts.
 
 The full design, with 25+ architecture decision records behind it, is in the [case study](https://github.com/Zanemvula/chatly-case-study). The source is private.

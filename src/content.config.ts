@@ -35,10 +35,12 @@ const projects = defineCollection({
   loader: glob({ pattern: '*.md', base: './content/projects' }),
   schema: z.object({
     title: z.string(),
-    /** One sentence for the plaque, cards and meta description. */
-    summary: z.string().max(200),
+    /** One or two sentences for the chapter, cards and meta description. */
+    summary: z.string().max(320),
     year: todoOr(z.string().regex(/^\d{4}(–(\d{4}|present))?$/)),
     status: z.enum(['live', 'in-progress', 'paused', 'archived', 'todo']),
+    /** Overrides the status label where a fixed one isn't enough, e.g. "Archived · Jun – Oct 2026". */
+    statusText: z.string().optional(),
     /** Chapter order in the Edition (1 = first). */
     order: z.number().int().positive(),
     draft: z.boolean().default(false),
@@ -91,6 +93,8 @@ const studying = defineCollection({
     provider: z.string(),
     url: z.url().optional(),
     status: z.enum(['studying', 'in-progress', 'paused', 'completed']),
+    /** Overrides the status label, e.g. "Exam booked · 12 December 2026". */
+    statusText: z.string().optional(),
     started: todoOr(isoDate),
     target: todoOr(isoDate).optional(),
     nextStep: todoOr(z.string()).optional(),

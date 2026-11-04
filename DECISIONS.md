@@ -110,3 +110,9 @@ Ntsika's verdict on the first build: it "missed the design and feeling of the Sh
     - Each release ends by pruning untagged preview revisions.
 
     All of this was checked against a stateful fake of Cloud Run, with five scenarios: cleanup while the preview is newest, a normal release, a failed release with rollback, the release after that, and rollback twice.
+69. **Content update, 2026-11-04** (Ntsika's final facts):
+    - **Studies.** The ACE exam is booked for 12 December 2026, replacing the AWS SAA entry. Networking fundamentals is completed.
+    - **Chatly.** Archived on 25 Oct 2026 after a live end-to-end payment. Ntsika chose not to run a payments product as a solo engineer.
+    - **Work history.** The freelance entry is removed, so the list matches LinkedIn. The Boksburg and Bedfordview locations were kept.
+    - **Code to support it.** Exact wording needed a small code change, approved by Ntsika. Studies and projects take an optional `statusText`, shown in place of the fixed status label. The project summary cap rose from 200 to 320 characters. Completed studies are shown after active ones instead of being hidden.
+    - **Chatly room.** Wording that contradicted the archive was fixed, also approved: "in active development" became "Archived in October 2026", "run it" became "ran it", and the roadmap paragraph was dropped. Architecture, Meta App Review, Paystack and the painting are unchanged.

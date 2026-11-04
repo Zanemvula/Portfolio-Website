@@ -19,13 +19,13 @@
 
 <!-- BEGIN GENERATED: npm run todos -->
 
-## Content TODOs (32)
+## Content TODOs (28)
 
 _Facts only you can supply. Generated from /content — edit the content files, then re-run `npm run todos`._
 
 ### `content/projects/chatly.md`
 
-- [ ] L23: public URL if one exists
+- [ ] L24: public URL if one exists
 
 ### `content/projects/comfy-shoes.md`
 
@@ -70,16 +70,9 @@ _Facts only you can supply. Generated from /content — edit the content files, 
 - [ ] L41: dated entries
 - [ ] L46: status, which services report to it, how it is maintained.
 
-### `content/site.json`
-
-- [ ] L57: start month (YYYY-MM)
-
 ### `content/studying.json`
 
 - [ ] L8: start month (YYYY-MM)
-- [ ] L9: target exam month (YYYY-MM)
-- [ ] L10: current module or next milestone
-- [ ] L19: start month (YYYY-MM)
-- [ ] L20: current section or next milestone
+- [ ] L17: start month (YYYY-MM)
 
 <!-- END GENERATED -->
