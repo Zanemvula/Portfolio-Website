@@ -9,7 +9,7 @@ COPY . .
 RUN npm run build
 
 # ---- Serve: Caddy, non-root, port 8080 ----
-FROM mirror.gcr.io/library/caddy:2.11.7-alpine
+FROM mirror.gcr.io/library/caddy:2.11.9-alpine
 ENV XDG_CONFIG_HOME=/tmp/caddy/config \
     XDG_DATA_HOME=/tmp/caddy/data \
     PORT=8080
